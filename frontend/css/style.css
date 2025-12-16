@@ -627,6 +627,48 @@ body {
     box-shadow: var(--shadow-lg);
 }
 
+/* Result Actions */
+.result-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.result-actions .download-btn,
+.result-actions .share-btn {
+    flex: 1;
+}
+
+.share-btn {
+    padding: 1rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.share-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.share-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.share-btn.hidden {
+    display: none;
+}
+
 /* ==================== Projects Section ==================== */
 .projects-section {
     margin-top: 1.5rem;

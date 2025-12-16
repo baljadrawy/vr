@@ -192,6 +192,16 @@ class APIManager {
         downloadLink.href = data.downloadUrl;
         downloadLink.download = data.fileName;
 
+        // حفظ بيانات الملف للمشاركة
+        this.currentFile = {
+            url: data.downloadUrl,
+            fileName: data.fileName,
+            format: data.format
+        };
+
+        // إظهار زر المشاركة إذا كان Web Share API متاح
+        this.setupShareButton();
+
         // إخفاء صندوق الحالة بعد 2 ثانية
         setTimeout(() => {
             this.statusBox.classList.add('hidden');
@@ -199,6 +209,79 @@ class APIManager {
 
         // Scroll إلى النتيجة
         this.resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    setupShareButton() {
+        const shareBtn = document.getElementById('share-btn');
+        
+        // التحقق من دعم Web Share API مع الملفات
+        if (navigator.share && navigator.canShare) {
+            shareBtn.classList.remove('hidden');
+            
+            // إزالة المستمعين السابقين
+            shareBtn.replaceWith(shareBtn.cloneNode(true));
+            const newShareBtn = document.getElementById('share-btn');
+            
+            newShareBtn.addEventListener('click', () => this.handleShare());
+        } else {
+            shareBtn.classList.add('hidden');
+        }
+    }
+
+    async handleShare() {
+        if (!this.currentFile) return;
+
+        const shareBtn = document.getElementById('share-btn');
+        const originalHTML = shareBtn.innerHTML;
+        
+        try {
+            shareBtn.disabled = true;
+            shareBtn.innerHTML = `
+                <span class="btn-icon">⏳</span>
+                <span class="btn-text">جاري التحضير...</span>
+            `;
+
+            // تحميل الملف كـ Blob
+            const response = await fetch(this.currentFile.url);
+            const blob = await response.blob();
+            
+            // تحديد نوع الملف
+            const mimeType = this.currentFile.format === 'GIF' ? 'image/gif' : 'video/mp4';
+            const file = new File([blob], this.currentFile.fileName, { type: mimeType });
+
+            // التحقق من إمكانية مشاركة الملف
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'فيديو من محول الويب',
+                    text: 'شاهد هذا الفيديو الذي أنشأته!',
+                    files: [file]
+                });
+                
+                if (window.app) {
+                    window.app.showNotification('تمت المشاركة بنجاح! ✅');
+                }
+            } else {
+                // إذا لم يكن مدعوماً، نسخ الرابط بدلاً من ذلك
+                this.fallbackShare();
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('Share error:', error);
+                this.fallbackShare();
+            }
+        } finally {
+            shareBtn.disabled = false;
+            shareBtn.innerHTML = originalHTML;
+        }
+    }
+
+    fallbackShare() {
+        // على الكمبيوتر: تحميل الملف
+        if (window.app) {
+            window.app.showNotification('حمّل الملف ثم شاركه من تطبيقك المفضل 📥');
+        }
+        // تفعيل التحميل تلقائياً
+        document.getElementById('download-link').click();
     }
 
     showError(message) {

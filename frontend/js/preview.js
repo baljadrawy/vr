@@ -8,6 +8,7 @@ class PreviewManager {
         this.resolutionSelect = document.getElementById('resolution');
         this.resolutionIndicator = document.getElementById('resolution-indicator');
         this.refreshBtn = document.getElementById('refresh-preview');
+        this.restartBtn = document.getElementById('restart-preview');
         this.previewLoading = document.getElementById('preview-loading');
         
         this.debounceTimer = null;
@@ -31,6 +32,11 @@ class PreviewManager {
         // زر التحديث اليدوي
         this.refreshBtn.addEventListener('click', () => {
             this.updatePreview();
+        });
+
+        // زر إعادة التشغيل
+        this.restartBtn.addEventListener('click', () => {
+            this.restartPreview();
         });
 
         // تحديث أولي
@@ -126,6 +132,11 @@ class PreviewManager {
         setTimeout(() => {
             this.previewLoading.classList.remove('active');
         }, 300);
+    }
+
+    restartPreview() {
+        // إعادة تحميل المعاينة لإعادة تشغيل الأنيميشن
+        this.updatePreview();
     }
 }
 

@@ -254,6 +254,11 @@ body {
     margin-bottom: 1rem;
 }
 
+.preview-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
 .preview-header h3 {
     font-size: 1.3rem;
     font-weight: 600;

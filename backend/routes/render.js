@@ -3,10 +3,20 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 
 const { captureFrames, captureFramesStreaming } = require('../services/puppeteer');
 const { createVideo, createFFmpegStream } = require('../services/ffmpeg');
 const authMiddleware = require('../middleware/auth');
+
+// تحميل مكتبة GSAP محلياً
+let gsapCode = '';
+try {
+  gsapCode = fsSync.readFileSync(path.join(__dirname, '../../node_modules/gsap/dist/gsap.min.js'), 'utf8');
+  console.log('✅ تم تحميل مكتبة GSAP محلياً');
+} catch (err) {
+  console.error('⚠️ لم يتم العثور على مكتبة GSAP:', err.message);
+}
 
 const RESOLUTIONS = {
   'HD_Vertical': { width: 1080, height: 1920, name: 'ريلز/تيك توك' },
@@ -156,67 +166,11 @@ router.post('/', async (req, res) => {
     // إنشاء مجلد الجلسة
     await fs.mkdir(sessionDir, { recursive: true });
 
-    // 1. استخراج سكربتات CDN من HTML
-    const scriptRegex = /<script\s+src=["']([^"']+)["'][^>]*>\s*<\/script>/gi;
-    const externalScripts = [];
-    let htmlWithoutScripts = html;
-    let match;
-    
-    while ((match = scriptRegex.exec(html)) !== null) {
-      externalScripts.push(match[1]);
-      htmlWithoutScripts = htmlWithoutScripts.replace(match[0], '');
-    }
+    // 1. إزالة سكربتات CDN من HTML (سنستخدم GSAP المحلية)
+    const scriptRegex = /<script\s+src=["'][^"']*gsap[^"']*["'][^>]*>\s*<\/script>/gi;
+    let htmlClean = html.replace(scriptRegex, '');
 
-    // 2. بناء كود تحميل السكربتات الخارجية
-    const loadScriptsCode = externalScripts.length > 0 ? `
-      window.__scriptsReady = false;
-      (function() {
-        const scripts = ${JSON.stringify(externalScripts)};
-        let loaded = 0;
-        
-        function loadNext() {
-          if (loaded >= scripts.length) {
-            runUserCode();
-            return;
-          }
-          const script = document.createElement('script');
-          script.src = scripts[loaded];
-          script.onload = function() {
-            console.log('Loaded:', scripts[loaded]);
-            loaded++;
-            loadNext();
-          };
-          script.onerror = function() {
-            console.error('Failed to load:', scripts[loaded]);
-            loaded++;
-            loadNext();
-          };
-          document.head.appendChild(script);
-        }
-        
-        function runUserCode() {
-          try {
-            ${js}
-            window.__scriptsReady = true;
-            console.log('User code executed successfully');
-          } catch (error) {
-            console.error('JavaScript Error:', error);
-            window.__scriptsReady = true;
-          }
-        }
-        
-        if (scripts.length > 0) {
-          loadNext();
-        } else {
-          runUserCode();
-        }
-      })();
-    ` : `
-      window.__scriptsReady = true;
-      ${js}
-    `;
-
-    // 3. إنشاء ملف HTML مع دعم الخطوط العربية والإيموجي (خطوط النظام)
+    // 2. إنشاء ملف HTML مع GSAP محلية ودعم الخطوط العربية
     const fullHTML = `
 <!DOCTYPE html>
 <html>
@@ -236,9 +190,18 @@ router.post('/', async (req, res) => {
   </style>
 </head>
 <body>
-  ${htmlWithoutScripts}
+  ${htmlClean}
   <script>
-    ${loadScriptsCode}
+    // GSAP مضمّنة محلياً
+    ${gsapCode}
+  </script>
+  <script>
+    window.__scriptsReady = true;
+    try {
+      ${js}
+    } catch (error) {
+      console.error('JavaScript Error:', error);
+    }
   </script>
 </body>
 </html>`;

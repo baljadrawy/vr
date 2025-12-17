@@ -13,10 +13,8 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <div class="header-content">
-                <h1 class="title">🎬 محول كود الويب إلى فيديو</h1>
-                <p class="subtitle">حوّل أكواد HTML/CSS/JavaScript إلى فيديوهات عالية الجودة</p>
-            </div>
+            <h1 class="title">🎬 محول كود الويب إلى فيديو</h1>
+            <p class="subtitle">حوّل أكواد HTML/CSS/JavaScript إلى فيديوهات عالية الجودة</p>
         </header>
 
         <!-- Main Content -->
@@ -33,77 +31,51 @@
                 </div>
 
                 <div class="editors-container">
-                    <!-- HTML Editor -->
                     <div class="editor-wrapper active" data-editor="html">
                         <div class="editor-header">
                             <span class="editor-label">HTML</span>
                             <button class="clear-btn" data-clear="html">🗑️ مسح</button>
                         </div>
-                        <textarea 
-                            id="html-editor" 
-                            class="code-editor" 
-                            placeholder="<!-- ضع كود HTML هنا -->
-<div class='container'>
-  <h1>مرحباً بالعالم</h1>
-</div>"
-                            spellcheck="false"
-                        ></textarea>
+                        <textarea id="html-editor" class="code-editor" placeholder="<!-- ضع كود HTML هنا -->" spellcheck="false"></textarea>
                     </div>
 
-                    <!-- CSS Editor -->
                     <div class="editor-wrapper" data-editor="css">
                         <div class="editor-header">
                             <span class="editor-label">CSS</span>
                             <button class="clear-btn" data-clear="css">🗑️ مسح</button>
                         </div>
-                        <textarea 
-                            id="css-editor" 
-                            class="code-editor" 
-                            placeholder="/* ضع كود CSS هنا */
-body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}"
-                            spellcheck="false"
-                        ></textarea>
+                        <textarea id="css-editor" class="code-editor" placeholder="/* ضع كود CSS هنا */" spellcheck="false"></textarea>
                     </div>
 
-                    <!-- JavaScript Editor -->
                     <div class="editor-wrapper" data-editor="js">
                         <div class="editor-header">
                             <span class="editor-label">JavaScript</span>
                             <button class="clear-btn" data-clear="js">🗑️ مسح</button>
                         </div>
-                        <textarea 
-                            id="js-editor" 
-                            class="code-editor" 
-                            placeholder="// ضع كود JavaScript هنا
-console.log('Hello World!');"
-                            spellcheck="false"
-                        ></textarea>
+                        <textarea id="js-editor" class="code-editor" placeholder="// ضع كود JavaScript هنا" spellcheck="false"></textarea>
                     </div>
                 </div>
 
-                <!-- Templates -->
-                <div class="templates-section">
-                    <h3>📦 قوالب جاهزة</h3>
-                    <div class="templates-grid">
-                        <button class="template-btn" data-template="gradient">تدرج متحرك</button>
-                        <button class="template-btn" data-template="particles">جزيئات</button>
-                        <button class="template-btn" data-template="text">نص متحرك</button>
-                        <button class="template-btn" data-template="shapes">أشكال</button>
+                <!-- Templates & Projects Row -->
+                <div class="bottom-sections">
+                    <div class="templates-section">
+                        <h3>📦 قوالب جاهزة</h3>
+                        <div class="templates-grid">
+                            <button class="template-btn" data-template="gradient">🌈 تدرج</button>
+                            <button class="template-btn" data-template="particles">✨ جزيئات</button>
+                            <button class="template-btn" data-template="text">📝 نص</button>
+                            <button class="template-btn" data-template="shapes">🔷 أشكال</button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Projects -->
-                <div class="projects-section">
-                    <div class="projects-header">
-                        <h3>💾 مشاريعي</h3>
-                        <button id="save-project-btn" class="save-btn">
-                            <span>💾</span> حفظ المشروع
-                        </button>
-                    </div>
-                    <div id="projects-list" class="projects-list">
-                        <p class="no-projects">لا توجد مشاريع محفوظة</p>
+                    <div class="projects-section">
+                        <div class="projects-header">
+                            <h3>💾 مشاريعي</h3>
+                            <button id="save-project-btn" class="save-btn">💾 حفظ</button>
+                        </div>
+                        <div id="projects-list" class="projects-list">
+                            <p class="no-projects">لا توجد مشاريع</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -113,10 +85,10 @@ console.log('Hello World!');"
                 <!-- Preview -->
                 <div class="preview-section">
                     <div class="preview-header">
-                        <h3>👁️ معاينة مباشرة</h3>
+                        <h3>👁️ المعاينة</h3>
                         <div class="preview-controls">
                             <button id="restart-preview" class="icon-btn" title="إعادة تشغيل">⏮️</button>
-                            <button id="refresh-preview" class="icon-btn" title="تحديث المعاينة">🔄</button>
+                            <button id="refresh-preview" class="icon-btn" title="تحديث">🔄</button>
                         </div>
                     </div>
                     <div class="preview-container">
@@ -128,87 +100,69 @@ console.log('Hello World!');"
                     </div>
                 </div>
 
-                <!-- Options -->
+                <!-- Options - Compact Layout -->
                 <div class="options-section">
-                    <h3>⚙️ إعدادات الإخراج</h3>
+                    <h3>⚙️ الإعدادات</h3>
                     
-                    <div class="options-grid">
-                        <div class="option-group">
-                            <label for="resolution">
-                                <span class="option-icon">📐</span>
-                                الدقة
-                            </label>
+                    <div class="options-row">
+                        <div class="option-compact">
+                            <label for="resolution">📐 الدقة</label>
                             <select id="resolution" class="select-input">
-                                <option value="HD_Vertical">📱 ريلز/تيك توك (1080×1920)</option>
+                                <option value="HD_Vertical">📱 عمودي (1080×1920)</option>
                                 <option value="Square">⬜ مربع (1080×1080)</option>
                                 <option value="HD_Horizontal">🖥️ أفقي (1920×1080)</option>
                             </select>
                         </div>
 
-                        <div class="option-group">
-                            <label for="format">
-                                <span class="option-icon">🎞️</span>
-                                التنسيق
-                            </label>
+                        <div class="option-compact">
+                            <label for="format">🎞️ التنسيق</label>
                             <select id="format" class="select-input">
-                                <option value="MP4">MP4 (موصى به)</option>
+                                <option value="MP4">MP4</option>
                                 <option value="GIF">GIF</option>
-                            </select>
-                        </div>
-
-                        <div class="option-group">
-                            <label for="duration">
-                                <span class="option-icon">⏱️</span>
-                                المدة (ثانية)
-                            </label>
-                            <input 
-                                type="number" 
-                                id="duration" 
-                                class="number-input" 
-                                value="15" 
-                                min="1" 
-                                max="60"
-                            >
-                            <span class="input-hint">1-60 ثانية</span>
-                        </div>
-
-                        <div class="option-group">
-                            <label for="fps">
-                                <span class="option-icon">🎬</span>
-                                معدل الإطارات (FPS)
-                            </label>
-                            <select id="fps" class="select-input">
-                                <option value="24">24 FPS</option>
-                                <option value="30" selected>30 FPS (موصى به)</option>
-                                <option value="60">60 FPS</option>
-                            </select>
-                        </div>
-
-                        <div class="option-group">
-                            <label for="quality">
-                                <span class="option-icon">✨</span>
-                                الجودة
-                            </label>
-                            <select id="quality" class="select-input">
-                                <option value="fast">🚀 سريع (جودة عادية)</option>
-                                <option value="high" selected>✨ عالي الجودة</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Estimated Info -->
-                    <div class="info-box">
-                        <div class="info-item">
-                            <span class="info-label">الحجم التقريبي:</span>
-                            <span id="estimated-size" class="info-value">~5 MB</span>
+                    <div class="options-row">
+                        <div class="option-compact">
+                            <label for="duration">⏱️ المدة</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="duration" class="number-input" value="15" min="1" max="60">
+                                <span class="unit">ثانية</span>
+                            </div>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">وقت المعالجة:</span>
-                            <span id="estimated-time" class="info-value">~45 ثانية</span>
+
+                        <div class="option-compact">
+                            <label for="fps">🎬 FPS</label>
+                            <select id="fps" class="select-input">
+                                <option value="24">24</option>
+                                <option value="30" selected>30</option>
+                                <option value="60">60</option>
+                            </select>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">عدد الإطارات:</span>
-                            <span id="total-frames" class="info-value">450 إطار</span>
+
+                        <div class="option-compact">
+                            <label for="quality">✨ الجودة</label>
+                            <select id="quality" class="select-input">
+                                <option value="fast">🚀 سريع</option>
+                                <option value="high" selected>✨ عالي</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Stats Bar -->
+                    <div class="stats-bar">
+                        <div class="stat">
+                            <span class="stat-icon">📊</span>
+                            <span id="total-frames">450</span> إطار
+                        </div>
+                        <div class="stat">
+                            <span class="stat-icon">💾</span>
+                            ~<span id="estimated-size">5</span> MB
+                        </div>
+                        <div class="stat">
+                            <span class="stat-icon">⏳</span>
+                            ~<span id="estimated-time">45</span> ث
                         </div>
                     </div>
                 </div>
@@ -236,18 +190,9 @@ console.log('Hello World!');"
                         <h3>✨ الفيديو جاهز!</h3>
                     </div>
                     <div class="result-info">
-                        <div class="result-item">
-                            <span class="result-label">الدقة:</span>
-                            <span id="result-resolution" class="result-value"></span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">التنسيق:</span>
-                            <span id="result-format" class="result-value"></span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">وقت المعالجة:</span>
-                            <span id="result-time" class="result-value"></span>
-                        </div>
+                        <span class="result-tag" id="result-resolution"></span>
+                        <span class="result-tag" id="result-format"></span>
+                        <span class="result-tag" id="result-time"></span>
                     </div>
                     <div class="result-actions">
                         <a id="download-link" href="#" download class="download-btn">

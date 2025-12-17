@@ -120,19 +120,17 @@ class App {
 
         // عدد الإطارات
         const totalFrames = duration * fps;
-        document.getElementById('total-frames').textContent = `${totalFrames} إطار`;
+        document.getElementById('total-frames').textContent = totalFrames;
 
         // حجم تقريبي (MB)
         let estimatedSize;
         if (format === 'MP4') {
-            // MP4: تقريباً 1-2 MB لكل ثانية حسب الدقة
             const sizeMultiplier = resolution === 'HD_Horizontal' ? 2 : 1.5;
-            estimatedSize = (duration * sizeMultiplier).toFixed(1);
+            estimatedSize = (duration * sizeMultiplier).toFixed(0);
         } else {
-            // GIF: أكبر بكثير
-            estimatedSize = (duration * 3).toFixed(1);
+            estimatedSize = (duration * 3).toFixed(0);
         }
-        document.getElementById('estimated-size').textContent = `~${estimatedSize} MB`;
+        document.getElementById('estimated-size').textContent = estimatedSize;
 
         // وقت المعالجة التقريبي
         const baseTime = {
@@ -142,7 +140,7 @@ class App {
         }[resolution] || 3;
 
         const estimatedTime = Math.round(duration * baseTime);
-        document.getElementById('estimated-time').textContent = `~${estimatedTime} ثانية`;
+        document.getElementById('estimated-time').textContent = estimatedTime;
     }
 
     // حفظ تلقائي في التخزين المحلي

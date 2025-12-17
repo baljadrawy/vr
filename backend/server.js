@@ -66,6 +66,13 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10mb' }));
+
+// Ensure API routes always return JSON
+app.use('/api', (req, res, next) => {
+  res.setHeader('Content-Type', 'application/json');
+  next();
+});
+
 app.use(express.static('frontend'));
 
 // Rate Limiter

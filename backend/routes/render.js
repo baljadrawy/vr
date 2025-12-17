@@ -94,7 +94,8 @@ router.post('/', async (req, res) => {
     resolution = 'HD_Vertical',
     format = 'MP4',
     duration = 15,
-    fps = 30
+    fps = 30,
+    quality = 'high'
   } = req.body;
 
   // Validation
@@ -191,6 +192,8 @@ router.post('/', async (req, res) => {
     const { width, height } = RESOLUTIONS[resolution];
     logger.info(`[${jobId}] التقاط ${duration * fps} إطار...`);
     
+    const deviceScaleFactor = quality === 'high' ? 2 : 1;
+    
     await captureFrames({
       htmlPath,
       sessionDir,
@@ -199,6 +202,7 @@ router.post('/', async (req, res) => {
       duration,
       fps,
       jobId,
+      deviceScaleFactor,
       onProgress: (percent) => {
         const adjustedProgress = 10 + (percent * 0.7); // 10-80%
         updateJobProgress(jobId, Math.round(adjustedProgress), 'capturing', `التقاط الإطارات: ${percent}%`);

@@ -28,6 +28,7 @@ class APIManager {
         const format = document.getElementById('format').value;
         const duration = parseInt(document.getElementById('duration').value);
         const fps = parseInt(document.getElementById('fps').value);
+        const quality = document.getElementById('quality').value;
 
         // التحقق من الإدخال
         if (!html.trim()) {
@@ -68,7 +69,8 @@ class APIManager {
                     resolution,
                     format,
                     duration,
-                    fps
+                    fps,
+                    quality
                 })
             });
 

@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
 
-async function captureFrames({ htmlPath, sessionDir, width, height, duration, fps, jobId, onProgress }) {
+async function captureFrames({ htmlPath, sessionDir, width, height, duration, fps, jobId, deviceScaleFactor = 1, onProgress }) {
   const totalFrames = duration * fps;
   const frameInterval = 1000 / fps;
   
@@ -25,7 +25,7 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
       defaultViewport: {
         width,
         height,
-        deviceScaleFactor: 1
+        deviceScaleFactor
       }
     });
 
@@ -34,7 +34,7 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
     await page.setViewport({ 
       width, 
       height,
-      deviceScaleFactor: 1
+      deviceScaleFactor
     });
 
     // حقن سكربت التحكم بالوقت الافتراضي قبل تحميل الصفحة

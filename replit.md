@@ -25,6 +25,7 @@ A web application with Arabic interface that converts HTML/CSS/JavaScript animat
 - **معدل الإطارات:** 24, 30, 60 FPS
 
 ### مميزات متقدمة
+- **البث المباشر (Streaming/Piping)** - إرسال الإطارات مباشرة من Puppeteer إلى FFmpeg (سرعة مضاعفة!)
 - **نظام الوقت الافتراضي** - التقاط دقيق للأنيميشنات JavaScript
 - **شريط تقدم مباشر** - عبر Server-Sent Events (SSE)
 - **حفظ المشاريع** - في قاعدة البيانات PostgreSQL

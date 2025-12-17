@@ -11,6 +11,7 @@ function createFFmpegStream({ outputDir, format, fps, width, height, jobId }) {
   if (format === 'MP4') {
     args = [
       '-f', 'image2pipe',
+      '-vcodec', 'mjpeg',
       '-framerate', fps.toString(),
       '-i', '-',
       '-vcodec', 'libx264',
@@ -25,6 +26,7 @@ function createFFmpegStream({ outputDir, format, fps, width, height, jobId }) {
   } else {
     args = [
       '-f', 'image2pipe',
+      '-vcodec', 'mjpeg',
       '-framerate', fps.toString(),
       '-i', '-',
       '-vf', `fps=${fps},scale=${width}:${height}:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=256[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5`,

@@ -75,6 +75,64 @@ class PreviewManager {
         // إظهار loader
         this.showLoading();
 
+        // استخراج سكربتات CDN من HTML وإزالتها من المحتوى
+        const scriptRegex = /<script\s+src=["']([^"']+)["'][^>]*>\s*<\/script>/gi;
+        const externalScripts = [];
+        let htmlWithoutScripts = html;
+        let match;
+        
+        while ((match = scriptRegex.exec(html)) !== null) {
+            externalScripts.push(match[1]);
+            htmlWithoutScripts = htmlWithoutScripts.replace(match[0], '');
+        }
+
+        // بناء كود تحميل السكربتات الخارجية
+        const loadScriptsCode = externalScripts.length > 0 ? `
+            (function() {
+                const scripts = ${JSON.stringify(externalScripts)};
+                let loaded = 0;
+                
+                function loadNext() {
+                    if (loaded >= scripts.length) {
+                        runUserCode();
+                        return;
+                    }
+                    const script = document.createElement('script');
+                    script.src = scripts[loaded];
+                    script.onload = function() {
+                        loaded++;
+                        loadNext();
+                    };
+                    script.onerror = function() {
+                        console.error('Failed to load:', scripts[loaded]);
+                        loaded++;
+                        loadNext();
+                    };
+                    document.head.appendChild(script);
+                }
+                
+                function runUserCode() {
+                    try {
+                        ${js}
+                    } catch (error) {
+                        console.error('JavaScript Error:', error);
+                    }
+                }
+                
+                if (scripts.length > 0) {
+                    loadNext();
+                } else {
+                    runUserCode();
+                }
+            })();
+        ` : `
+            try {
+                ${js}
+            } catch (error) {
+                console.error('JavaScript Error:', error);
+            }
+        `;
+
         // إنشاء المحتوى الكامل
         const fullHTML = `
 <!DOCTYPE html>
@@ -93,13 +151,9 @@ class PreviewManager {
     </style>
 </head>
 <body>
-    ${html}
+    ${htmlWithoutScripts}
     <script>
-        try {
-            ${js}
-        } catch (error) {
-            console.error('JavaScript Error:', error);
-        }
+        ${loadScriptsCode}
     </script>
 </body>
 </html>`;

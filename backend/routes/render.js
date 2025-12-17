@@ -4,8 +4,8 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs').promises;
 
-const { captureFrames } = require('../services/puppeteer');
-const { createVideo } = require('../services/ffmpeg');
+const { captureFrames, captureFramesStreaming } = require('../services/puppeteer');
+const { createVideo, createFFmpegStream } = require('../services/ffmpeg');
 const authMiddleware = require('../middleware/auth');
 
 const RESOLUTIONS = {
@@ -188,45 +188,76 @@ router.post('/', async (req, res) => {
 
     updateJobProgress(jobId, 10, 'capturing', 'جاري التقاط الإطارات...');
 
-    // 2. التقاط الإطارات
     const { width, height } = RESOLUTIONS[resolution];
-    logger.info(`[${jobId}] التقاط ${duration * fps} إطار...`);
-    
     const deviceScaleFactor = quality === 'high' ? 2 : 1;
+    const outputDir = process.env.OUTPUT_DIR || './output';
     
-    await captureFrames({
-      htmlPath,
-      sessionDir,
-      width,
-      height,
-      duration,
-      fps,
-      jobId,
-      deviceScaleFactor,
-      onProgress: (percent) => {
-        const adjustedProgress = 10 + (percent * 0.7); // 10-80%
-        updateJobProgress(jobId, Math.round(adjustedProgress), 'capturing', `التقاط الإطارات: ${percent}%`);
-      }
-    });
+    let outputPath;
 
-    updateJobProgress(jobId, 80, 'encoding', 'جاري ترميز الفيديو...');
+    if (format === 'MP4') {
+      logger.info(`[${jobId}] 🚀 استخدام البث المباشر (Streaming) - ${duration * fps} إطار`);
+      
+      const ffmpegStream = createFFmpegStream({
+        outputDir,
+        format,
+        fps,
+        width,
+        height,
+        jobId
+      });
 
-    // 3. إنشاء الفيديو
-    logger.info(`[${jobId}] إنشاء ${format}...`);
-    
-    const outputPath = await createVideo({
-      framesDir: sessionDir,
-      outputDir: process.env.OUTPUT_DIR || './output',
-      format,
-      fps,
-      width,
-      height,
-      jobId,
-      onProgress: (percent) => {
-        const adjustedProgress = 80 + (percent * 0.18); // 80-98%
-        updateJobProgress(jobId, Math.round(adjustedProgress), 'encoding', `ترميز الفيديو: ${percent}%`);
-      }
-    });
+      await captureFramesStreaming({
+        htmlPath,
+        ffmpegStdin: ffmpegStream.stdin,
+        width,
+        height,
+        duration,
+        fps,
+        jobId,
+        deviceScaleFactor,
+        onProgress: (percent) => {
+          const adjustedProgress = 10 + (percent * 0.85);
+          updateJobProgress(jobId, Math.round(adjustedProgress), 'streaming', `البث المباشر: ${percent}%`);
+        }
+      });
+
+      updateJobProgress(jobId, 95, 'finalizing', 'جاري إنهاء الفيديو...');
+      outputPath = await ffmpegStream.waitForFinish();
+      
+    } else {
+      logger.info(`[${jobId}] التقاط ${duration * fps} إطار (GIF)...`);
+      
+      await captureFrames({
+        htmlPath,
+        sessionDir,
+        width,
+        height,
+        duration,
+        fps,
+        jobId,
+        deviceScaleFactor,
+        onProgress: (percent) => {
+          const adjustedProgress = 10 + (percent * 0.7);
+          updateJobProgress(jobId, Math.round(adjustedProgress), 'capturing', `التقاط الإطارات: ${percent}%`);
+        }
+      });
+
+      updateJobProgress(jobId, 80, 'encoding', 'جاري ترميز GIF...');
+      
+      outputPath = await createVideo({
+        framesDir: sessionDir,
+        outputDir,
+        format,
+        fps,
+        width,
+        height,
+        jobId,
+        onProgress: (percent) => {
+          const adjustedProgress = 80 + (percent * 0.18);
+          updateJobProgress(jobId, Math.round(adjustedProgress), 'encoding', `ترميز GIF: ${percent}%`);
+        }
+      });
+    }
 
     const processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
     logger.info(`[${jobId}] ✅ اكتمل في ${processingTime}s`);

@@ -162,6 +162,10 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
       timeout: 30000
     });
 
+    logger.info(`[${jobId}] انتظار تحميل السكربتات الخارجية...`);
+    await page.waitForFunction(() => window.__scriptsReady === true, { timeout: 30000 });
+    logger.info(`[${jobId}] ✅ السكربتات جاهزة`);
+
     logger.info(`[${jobId}] انتظار تحميل الخطوط...`);
     await page.evaluate(() => {
       return new Promise((resolve) => {
@@ -390,6 +394,10 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
       waitUntil: ['load', 'networkidle0'],
       timeout: 30000
     });
+
+    logger.info(`[${jobId}] انتظار تحميل السكربتات الخارجية...`);
+    await page.waitForFunction(() => window.__scriptsReady === true, { timeout: 30000 });
+    logger.info(`[${jobId}] ✅ السكربتات جاهزة`);
 
     logger.info(`[${jobId}] انتظار تحميل الخطوط...`);
     await page.evaluate(() => {

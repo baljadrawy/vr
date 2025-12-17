@@ -156,7 +156,67 @@ router.post('/', async (req, res) => {
     // إنشاء مجلد الجلسة
     await fs.mkdir(sessionDir, { recursive: true });
 
-    // 1. إنشاء ملف HTML مع دعم الخطوط العربية والإيموجي (خطوط النظام)
+    // 1. استخراج سكربتات CDN من HTML
+    const scriptRegex = /<script\s+src=["']([^"']+)["'][^>]*>\s*<\/script>/gi;
+    const externalScripts = [];
+    let htmlWithoutScripts = html;
+    let match;
+    
+    while ((match = scriptRegex.exec(html)) !== null) {
+      externalScripts.push(match[1]);
+      htmlWithoutScripts = htmlWithoutScripts.replace(match[0], '');
+    }
+
+    // 2. بناء كود تحميل السكربتات الخارجية
+    const loadScriptsCode = externalScripts.length > 0 ? `
+      window.__scriptsReady = false;
+      (function() {
+        const scripts = ${JSON.stringify(externalScripts)};
+        let loaded = 0;
+        
+        function loadNext() {
+          if (loaded >= scripts.length) {
+            runUserCode();
+            return;
+          }
+          const script = document.createElement('script');
+          script.src = scripts[loaded];
+          script.onload = function() {
+            console.log('Loaded:', scripts[loaded]);
+            loaded++;
+            loadNext();
+          };
+          script.onerror = function() {
+            console.error('Failed to load:', scripts[loaded]);
+            loaded++;
+            loadNext();
+          };
+          document.head.appendChild(script);
+        }
+        
+        function runUserCode() {
+          try {
+            ${js}
+            window.__scriptsReady = true;
+            console.log('User code executed successfully');
+          } catch (error) {
+            console.error('JavaScript Error:', error);
+            window.__scriptsReady = true;
+          }
+        }
+        
+        if (scripts.length > 0) {
+          loadNext();
+        } else {
+          runUserCode();
+        }
+      })();
+    ` : `
+      window.__scriptsReady = true;
+      ${js}
+    `;
+
+    // 3. إنشاء ملف HTML مع دعم الخطوط العربية والإيموجي (خطوط النظام)
     const fullHTML = `
 <!DOCTYPE html>
 <html>
@@ -176,9 +236,9 @@ router.post('/', async (req, res) => {
   </style>
 </head>
 <body>
-  ${html}
+  ${htmlWithoutScripts}
   <script>
-    ${js}
+    ${loadScriptsCode}
   </script>
 </body>
 </html>`;

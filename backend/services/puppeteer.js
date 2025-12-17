@@ -110,6 +110,12 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
         const oldTime = window.__virtualTime;
         window.__virtualTime = newTime;
 
+        // تحديث GSAP ticker إذا كان موجوداً
+        if (typeof gsap !== 'undefined' && gsap.ticker) {
+          gsap.ticker.time = newTime / 1000;
+          gsap.ticker.tick();
+        }
+
         const rafCallbacks = [...window.__rafCallbacks];
         window.__rafCallbacks = [];
         rafCallbacks.forEach(({ callback }) => {
@@ -165,6 +171,14 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
     logger.info(`[${jobId}] انتظار تحميل السكربتات الخارجية...`);
     await page.waitForFunction(() => window.__scriptsReady === true, { timeout: 30000 });
     logger.info(`[${jobId}] ✅ السكربتات جاهزة`);
+
+    // إعداد GSAP ticker للوقت الافتراضي
+    await page.evaluate(() => {
+      if (typeof gsap !== 'undefined' && gsap.ticker) {
+        gsap.ticker.lagSmoothing(0);
+        gsap.ticker.sleep();
+      }
+    });
 
     logger.info(`[${jobId}] انتظار تحميل الخطوط...`);
     await page.evaluate(() => {
@@ -343,6 +357,12 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
         const oldTime = window.__virtualTime;
         window.__virtualTime = newTime;
 
+        // تحديث GSAP ticker إذا كان موجوداً
+        if (typeof gsap !== 'undefined' && gsap.ticker) {
+          gsap.ticker.time = newTime / 1000;
+          gsap.ticker.tick();
+        }
+
         const rafCallbacks = [...window.__rafCallbacks];
         window.__rafCallbacks = [];
         rafCallbacks.forEach(({ callback }) => {
@@ -398,6 +418,14 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
     logger.info(`[${jobId}] انتظار تحميل السكربتات الخارجية...`);
     await page.waitForFunction(() => window.__scriptsReady === true, { timeout: 30000 });
     logger.info(`[${jobId}] ✅ السكربتات جاهزة`);
+
+    // إعداد GSAP ticker للوقت الافتراضي
+    await page.evaluate(() => {
+      if (typeof gsap !== 'undefined' && gsap.ticker) {
+        gsap.ticker.lagSmoothing(0);
+        gsap.ticker.sleep();
+      }
+    });
 
     logger.info(`[${jobId}] انتظار تحميل الخطوط...`);
     await page.evaluate(() => {

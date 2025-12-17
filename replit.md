@@ -28,7 +28,6 @@ A web application with Arabic interface that converts HTML/CSS/JavaScript animat
 - **البث المباشر (Streaming/Piping)** - إرسال الإطارات مباشرة من Puppeteer إلى FFmpeg (سرعة مضاعفة!)
 - **نظام الوقت الافتراضي** - التقاط دقيق للأنيميشنات JavaScript
 - **شريط تقدم مباشر** - عبر Server-Sent Events (SSE)
-- **حفظ المشاريع** - في قاعدة البيانات PostgreSQL
 - **زر المشاركة** - مشاركة مباشرة للسوشيال ميديا (على الجوال)
 - **دعم الخطوط العربية والإيموجي** - عبر خطوط Noto
 
@@ -42,8 +41,7 @@ A web application with Arabic interface that converts HTML/CSS/JavaScript animat
 │   ├── middleware/
 │   │   └── auth.js            # التحقق من الهوية
 │   ├── routes/
-│   │   ├── render.js          # API التحويل
-│   │   └── projects.js        # API المشاريع
+│   │   └── render.js          # API التحويل
 │   ├── services/
 │   │   ├── ffmpeg.js          # معالجة الفيديو
 │   │   └── puppeteer.js       # التقاط الإطارات
@@ -58,7 +56,6 @@ A web application with Arabic interface that converts HTML/CSS/JavaScript animat
 │       ├── app.js             # المنطق الرئيسي
 │       ├── api.js             # الاتصال بالـ API
 │       ├── preview.js         # إدارة المعاينة
-│       ├── projects.js        # حفظ/تحميل المشاريع
 │       └── templates.js       # القوالب الجاهزة
 │
 ├── temp/                      # ملفات مؤقتة (تُنشأ تلقائياً)
@@ -72,7 +69,6 @@ A web application with Arabic interface that converts HTML/CSS/JavaScript animat
 
 ### متطلبات النظام
 - Node.js 20+
-- PostgreSQL (قاعدة بيانات)
 - FFmpeg (معالجة الفيديو)
 - Chromium (متصفح للتقاط الإطارات)
 

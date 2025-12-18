@@ -235,6 +235,90 @@ body {
     border-color: var(--primary-color);
 }
 
+/* ==================== Animations Section (Lottie) ==================== */
+.animations-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.animations-section h3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.animations-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.upload-btn {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.upload-btn:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-md);
+}
+
+.animations-controls .select-input {
+    flex: 1;
+    min-width: 150px;
+}
+
+.use-btn {
+    padding: 0.5rem 0.75rem;
+    background: var(--success-color);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.85rem;
+}
+
+.use-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.use-btn:not(:disabled):hover {
+    background: #0ea571;
+}
+
+.delete-btn {
+    padding: 0.5rem 0.75rem;
+    background: var(--error-color);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.delete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.delete-btn:not(:disabled):hover {
+    background: #dc2626;
+}
+
 /* ==================== Preview Section ==================== */
 .preview-section {
     margin-bottom: 2rem;

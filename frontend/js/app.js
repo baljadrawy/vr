@@ -17,6 +17,7 @@ class App {
         this.initClearButtons();
         this.initTemplates();
         this.initEstimates();
+        this.initLottieManager();
         this.loadFromLocalStorage();
         this.initAutoSave();
     }
@@ -65,6 +66,138 @@ class App {
                 }
             });
         });
+    }
+
+    // تهيئة مدير أنيميشنات Lottie
+    initLottieManager() {
+        const uploadBtn = document.getElementById('upload-lottie');
+        const fileInput = document.getElementById('lottie-file');
+        const lottieList = document.getElementById('lottie-list');
+        const useBtn = document.getElementById('use-lottie');
+        const deleteBtn = document.getElementById('delete-lottie');
+
+        if (!uploadBtn) return;
+
+        // رفع ملف
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const data = event.target.result;
+                    JSON.parse(data);
+
+                    const response = await fetch('/api/animations/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: file.name, data })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        this.showNotification(`تم رفع "${result.filename}" ✅`);
+                        this.loadLottieList();
+                    } else {
+                        this.showNotification(result.error || 'فشل الرفع ❌');
+                    }
+                } catch (err) {
+                    this.showNotification('ملف JSON غير صالح ❌');
+                }
+            };
+            reader.readAsText(file);
+            fileInput.value = '';
+        });
+
+        // تحديث الأزرار عند اختيار
+        lottieList.addEventListener('change', () => {
+            const hasSelection = lottieList.value !== '';
+            useBtn.disabled = !hasSelection;
+            deleteBtn.disabled = !hasSelection;
+        });
+
+        // استخدام الأنيميشن
+        useBtn.addEventListener('click', () => {
+            const selected = lottieList.options[lottieList.selectedIndex];
+            if (!selected || !selected.value) return;
+
+            const url = selected.value;
+            const name = selected.textContent;
+
+            const htmlCode = `<div id="lottie-container" style="width: 100%; height: 100%;"></div>`;
+            const jsCode = `lottie.loadAnimation({
+  container: document.getElementById('lottie-container'),
+  renderer: 'svg',
+  loop: true,
+  autoplay: true,
+  path: '${url}'
+});`;
+
+            this.htmlEditor.value = htmlCode;
+            this.jsEditor.value = jsCode;
+
+            if (window.previewManager) {
+                window.previewManager.updatePreview();
+            }
+
+            this.saveToLocalStorage();
+            this.showNotification(`تم تحميل أنيميشن "${name}" ✅`);
+        });
+
+        // حذف الأنيميشن
+        deleteBtn.addEventListener('click', async () => {
+            const selected = lottieList.options[lottieList.selectedIndex];
+            if (!selected || !selected.value) return;
+
+            const filename = selected.dataset.filename;
+            if (!confirm(`هل تريد حذف "${selected.textContent}"؟`)) return;
+
+            try {
+                const response = await fetch(`/api/animations/${filename}`, { method: 'DELETE' });
+                const result = await response.json();
+                if (result.success) {
+                    this.showNotification('تم الحذف ✅');
+                    this.loadLottieList();
+                } else {
+                    this.showNotification(result.error || 'فشل الحذف ❌');
+                }
+            } catch (err) {
+                this.showNotification('خطأ في الحذف ❌');
+            }
+        });
+
+        // تحميل القائمة
+        this.loadLottieList();
+    }
+
+    async loadLottieList() {
+        const lottieList = document.getElementById('lottie-list');
+        if (!lottieList) return;
+
+        try {
+            const response = await fetch('/api/animations/list');
+            const result = await response.json();
+
+            lottieList.innerHTML = '<option value="">-- اختر أنيميشن --</option>';
+
+            if (result.success && result.animations.length > 0) {
+                result.animations.forEach(anim => {
+                    const option = document.createElement('option');
+                    option.value = anim.url;
+                    option.textContent = anim.name;
+                    option.dataset.filename = anim.filename;
+                    lottieList.appendChild(option);
+                });
+            }
+
+            document.getElementById('use-lottie').disabled = true;
+            document.getElementById('delete-lottie').disabled = true;
+        } catch (err) {
+            console.error('Error loading animations:', err);
+        }
     }
 
     // تهيئة القوالب الجاهزة

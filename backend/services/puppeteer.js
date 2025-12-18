@@ -164,13 +164,11 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
     }, frameInterval);
 
     await page.goto(`file://${htmlPath}`, { 
-      waitUntil: ['load', 'networkidle0'],
-      timeout: 30000
+      waitUntil: 'load',
+      timeout: 15000
     });
 
-    logger.info(`[${jobId}] انتظار تحميل السكربتات الخارجية...`);
-    await page.waitForFunction(() => window.__scriptsReady === true, { timeout: 30000 });
-    logger.info(`[${jobId}] ✅ السكربتات جاهزة`);
+    logger.info(`[${jobId}] ✅ الصفحة جاهزة`);
 
     // إعداد GSAP ticker للوقت الافتراضي
     await page.evaluate(() => {
@@ -411,13 +409,11 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
     }, frameInterval);
 
     await page.goto(`file://${htmlPath}`, { 
-      waitUntil: ['load', 'networkidle0'],
-      timeout: 30000
+      waitUntil: 'load',
+      timeout: 15000
     });
 
-    logger.info(`[${jobId}] انتظار تحميل السكربتات الخارجية...`);
-    await page.waitForFunction(() => window.__scriptsReady === true, { timeout: 30000 });
-    logger.info(`[${jobId}] ✅ السكربتات جاهزة`);
+    logger.info(`[${jobId}] ✅ الصفحة جاهزة`);
 
     // إعداد GSAP ticker للوقت الافتراضي
     await page.evaluate(() => {

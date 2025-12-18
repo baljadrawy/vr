@@ -113,6 +113,17 @@ app.get('/api/libs/twemoji.js', (req, res) => {
   }
 });
 
+// تقديم مكتبة Lottie محلياً
+app.get('/api/libs/lottie.js', (req, res) => {
+  const lottiePath = path.join(__dirname, '../node_modules/lottie-web/build/player/lottie.min.js');
+  if (fs.existsSync(lottiePath)) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(lottiePath);
+  } else {
+    res.status(404).send('// Lottie not found');
+  }
+});
+
 // تقديم الفيديوهات
 app.use('/output', express.static(process.env.OUTPUT_DIR || './output'));
 

@@ -29,6 +29,16 @@ try {
   console.error('⚠️ لم يتم العثور على مكتبة Twemoji:', err.message);
 }
 
+// تحميل مكتبة Lottie محلياً (لأنيميشنات After Effects)
+let lottieCode = '';
+try {
+  const lottiePath = require.resolve('lottie-web/build/player/lottie.min.js');
+  lottieCode = fsSync.readFileSync(lottiePath, 'utf8');
+  console.log('✅ تم تحميل مكتبة Lottie محلياً');
+} catch (err) {
+  console.error('⚠️ لم يتم العثور على مكتبة Lottie:', err.message);
+}
+
 const RESOLUTIONS = {
   'HD_Vertical': { width: 1080, height: 1920, name: 'ريلز/تيك توك' },
   'Square': { width: 1080, height: 1080, name: 'مربع' },
@@ -209,6 +219,10 @@ router.post('/', async (req, res) => {
   <script>
     // Twemoji مضمّنة محلياً (لتحويل الإيموجي إلى SVG)
     ${twemojiCode}
+  </script>
+  <script>
+    // Lottie مضمّنة محلياً (لأنيميشنات After Effects)
+    ${lottieCode}
   </script>
   <script>
     window.__scriptsReady = true;

@@ -286,15 +286,19 @@ body {
     border-radius: var(--radius-md);
     overflow: hidden;
     aspect-ratio: 9/16;
+    max-width: 350px;
+    margin: 0 auto;
     transition: all 0.3s ease;
 }
 
 .preview-container.square {
     aspect-ratio: 1/1;
+    max-width: 450px;
 }
 
 .preview-container.horizontal {
     aspect-ratio: 16/9;
+    max-width: 100%;
 }
 
 .resolution-indicator {
@@ -542,8 +546,12 @@ body {
     height: 100%;
     background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     width: 0%;
-    transition: width 0.5s ease;
+    transition: width 0.5s ease, background 0.3s ease;
     border-radius: 999px;
+}
+
+.status-box.error .progress-fill {
+    background: linear-gradient(90deg, var(--error-color) 0%, #dc2626 100%);
 }
 
 /* ==================== Result Box ==================== */

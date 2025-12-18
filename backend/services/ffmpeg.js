@@ -72,7 +72,7 @@ function createFFmpegStream({ outputDir, format, fps, width, height, jobId }) {
   };
 }
 
-function createVideo({ framesDir, outputDir, format, fps, width, height, jobId, onProgress }) {
+function createVideo({ framesDir, outputDir, format, fps, width, height, duration, jobId, onProgress }) {
   return new Promise((resolve, reject) => {
     const outputFileName = `video_${jobId}_${Date.now()}.${format.toLowerCase()}`;
     const outputPath = path.join(outputDir, outputFileName);
@@ -107,13 +107,13 @@ function createVideo({ framesDir, outputDir, format, fps, width, height, jobId, 
     logger.info(`[${jobId}] FFmpeg بدء: ${args.slice(0, 5).join(' ')}...`);
 
     let lastProgress = 0;
+    const totalFrames = fps * (duration || 15);
 
     ffmpegProcess.stderr.on('data', (data) => {
       const output = data.toString();
       const match = output.match(/frame=\s*(\d+)/);
       if (match && onProgress) {
         const frameCount = parseInt(match[1]);
-        const totalFrames = fps * 60;
         const percent = Math.min(100, Math.round((frameCount / totalFrames) * 100));
         if (percent > lastProgress) {
           lastProgress = percent;

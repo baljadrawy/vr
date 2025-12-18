@@ -12,7 +12,8 @@ const authMiddleware = require('../middleware/auth');
 // تحميل مكتبة GSAP محلياً
 let gsapCode = '';
 try {
-  gsapCode = fsSync.readFileSync(path.join(__dirname, '../../node_modules/gsap/dist/gsap.min.js'), 'utf8');
+  const gsapPath = require.resolve('gsap/dist/gsap.min.js');
+  gsapCode = fsSync.readFileSync(gsapPath, 'utf8');
   console.log('✅ تم تحميل مكتبة GSAP محلياً');
 } catch (err) {
   console.error('⚠️ لم يتم العثور على مكتبة GSAP:', err.message);

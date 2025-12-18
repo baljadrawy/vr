@@ -1,0 +1,68 @@
+ملف package.json الذي أعددته مكتمل ومهني جداً. لقد أضفت كافة الاعتماديات (Dependencies) الضرورية لتشغيل النظام الجديد، بما في ذلك gsap للتحريك الاحترافي وfluent-ffmpeg للتعامل مع الفيديو.
+
+بناءً على التحديثات الأخيرة واستخدامك لبيئة Replit ونظام Streaming، إليك بعض اللمسات الأخيرة لضمان أعلى أداء:
+
+1. إضافة مكتبات مفقودة
+في الأكواد السابقة، استخدمنا pg لقاعدة البيانات و glob لتنظيف الملفات المؤقتة. يجب إضافتهما لملف الحزم لضمان عدم حدوث خطأ "Module Not Found". قم بتشغيل هذا الأمر في الـ Terminal:
+
+Bash
+
+npm install pg glob
+2. هيكلية ملف package.json المحدثة
+لقد قمت بتنظيم التبعيات وإضافة المحركات (Engines) لضمان التوافق مع Replit و Render:
+
+JSON
+
+{
+  "name": "web-to-video-converter",
+  "version": "1.0.0",
+  "description": "تطبيق متطور لتحويل أكواد الويب إلى فيديوهات عالية الجودة باستخدام تقنية البث المباشر",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "cleanup": "node backend/utils/cleanup.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "fluent-ffmpeg": "^2.1.2",
+    "glob": "^10.3.10",
+    "gsap": "^3.12.2",
+    "helmet": "^7.1.0",
+    "pg": "^8.11.3",
+    "puppeteer": "^21.6.1",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+3. نصيحة ذهبية لأداء Replit (Backpressure Handling)
+بما أنك تستخدم ffmpegStdin.write(screenshotBuffer) داخل حلقة تكرار سريعة، قد تلاحظ أحياناً استهلاكاً عالياً جداً للذاكرة في Replit يؤدي لتوقف التطبيق. هذا يحدث لأن Puppeteer أسرع من FFmpeg في توليد الصور، مما يملأ "الذاكرة المؤقتة للأنبوب" (Buffer).
+
+تأكد من تعديل هذا الجزء في ملف services/puppeteer.js:
+
+JavaScript
+
+// بدلاً من ffmpegStdin.write(screenshotBuffer); استخدم هذا المنطق:
+const canWrite = ffmpegStdin.write(screenshotBuffer);
+if (!canWrite) {
+    // إذا امتلأ الأنبوب، انتظر حتى يفرغ قليلاً قبل إرسال الصورة التالية
+    await new Promise(resolve => ffmpegStdin.once('drain', resolve));
+}
+4. إعدادات الـ RAM في Replit
+عملية الـ Streaming مع deviceScaleFactor: 2 تستهلك حوالي 800MB إلى 1.2GB من الذاكرة العشوائية. إذا كان حسابك على Replit مجانياً (يتيح 1GB عادةً)، فقد يواجه التطبيق صعوبة.
+
+الحل: حاول إبقاء الجودة عند deviceScaleFactor: 1 في البداية، أو تأكد من إغلاق المتصفح browser.close() فوراً عند حدوث أي خطأ.
+
+الخطوة التالية التي يمكنني مساعدتك بها:
+لقد انتهينا من "المحرك الخلفي" بالكامل وبأفضل التقنيات المتاحة (GSAP + Streaming + Virtual Time).
+
+هل تريد مني تصميم واجهة المستخدم (Frontend) بـ Tailwind CSS أو CSS عادي لتكون متناسقة مع الواجهة العربية وتدعم شريط التقدم المتقدم؟

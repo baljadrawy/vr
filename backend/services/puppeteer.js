@@ -11,7 +11,7 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
     browser = await puppeteer.launch({
       headless: 'new',
       executablePath: process.env.CHROMIUM_PATH || '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium',
-      protocolTimeout: 120000,
+      protocolTimeout: 0,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -31,6 +31,7 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
     });
 
     const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(0);
     
     await page.setViewport({ 
       width, 
@@ -216,7 +217,10 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
         captureBeyondViewport: false
       });
 
-      ffmpegStdin.write(screenshotBuffer);
+      const canWrite = ffmpegStdin.write(screenshotBuffer);
+      if (!canWrite) {
+        await new Promise(resolve => ffmpegStdin.once('drain', resolve));
+      }
 
       const progress = Math.round((i / totalFrames) * 100);
       if (onProgress && i % Math.ceil(fps / 2) === 0) {
@@ -257,7 +261,7 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
     browser = await puppeteer.launch({
       headless: 'new',
       executablePath: process.env.CHROMIUM_PATH || '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium',
-      protocolTimeout: 120000,
+      protocolTimeout: 0,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -277,6 +281,7 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
     });
 
     const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(0);
     
     await page.setViewport({ 
       width, 

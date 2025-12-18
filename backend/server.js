@@ -89,6 +89,17 @@ app.use('/api/', limiter);
 // Routes
 app.use('/api/render', renderRouter);
 
+// تقديم مكتبة GSAP محلياً
+app.get('/api/libs/gsap.js', (req, res) => {
+  const gsapPath = path.join(__dirname, '../node_modules/gsap/dist/gsap.min.js');
+  if (fs.existsSync(gsapPath)) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(gsapPath);
+  } else {
+    res.status(404).send('// GSAP not found');
+  }
+});
+
 // تقديم الفيديوهات
 app.use('/output', express.static(process.env.OUTPUT_DIR || './output'));
 

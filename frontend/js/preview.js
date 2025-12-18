@@ -17,6 +17,7 @@ class PreviewManager {
         // تخزين كود المكتبات
         this.gsapCode = '';
         this.twemojiCode = '';
+        this.librariesLoaded = false;
 
         this.init();
     }
@@ -53,19 +54,26 @@ class PreviewManager {
     
     async loadLibraries() {
         try {
-            // تحميل GSAP
-            const gsapResponse = await fetch('/api/libs/gsap.js');
+            // تحميل GSAP و Twemoji بالتوازي
+            const [gsapResponse, twemojiResponse] = await Promise.all([
+                fetch('/api/libs/gsap.js'),
+                fetch('/api/libs/twemoji.js')
+            ]);
+            
             if (gsapResponse.ok) {
                 this.gsapCode = await gsapResponse.text();
+                console.log('✅ GSAP loaded for preview');
             }
             
-            // تحميل Twemoji
-            const twemojiResponse = await fetch('/api/libs/twemoji.js');
             if (twemojiResponse.ok) {
                 this.twemojiCode = await twemojiResponse.text();
+                console.log('✅ Twemoji loaded for preview');
             }
+            
+            this.librariesLoaded = true;
         } catch (error) {
             console.error('Error loading libraries:', error);
+            this.librariesLoaded = true; // Continue anyway
         }
     }
 

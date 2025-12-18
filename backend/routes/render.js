@@ -19,6 +19,16 @@ try {
   console.error('⚠️ لم يتم العثور على مكتبة GSAP:', err.message);
 }
 
+// تحميل مكتبة Twemoji محلياً (لتحويل الإيموجي إلى SVG)
+let twemojiCode = '';
+try {
+  const twemojiPath = require.resolve('twemoji/dist/twemoji.min.js');
+  twemojiCode = fsSync.readFileSync(twemojiPath, 'utf8');
+  console.log('✅ تم تحميل مكتبة Twemoji محلياً');
+} catch (err) {
+  console.error('⚠️ لم يتم العثور على مكتبة Twemoji:', err.message);
+}
+
 const RESOLUTIONS = {
   'HD_Vertical': { width: 1080, height: 1920, name: 'ريلز/تيك توك' },
   'Square': { width: 1080, height: 1080, name: 'مربع' },
@@ -197,11 +207,22 @@ router.post('/', async (req, res) => {
     ${gsapCode}
   </script>
   <script>
+    // Twemoji مضمّنة محلياً (لتحويل الإيموجي إلى SVG)
+    ${twemojiCode}
+  </script>
+  <script>
     window.__scriptsReady = true;
     try {
       ${js}
     } catch (error) {
       console.error('JavaScript Error:', error);
+    }
+    // تحويل الإيموجي إلى SVG بعد تحميل الكود
+    if (typeof twemoji !== 'undefined') {
+      twemoji.parse(document.body, {
+        folder: 'svg',
+        ext: '.svg'
+      });
     }
   </script>
 </body>

@@ -11,6 +11,7 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
     browser = await puppeteer.launch({
       headless: 'new',
       executablePath: process.env.CHROMIUM_PATH || '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium',
+      protocolTimeout: 120000,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -256,6 +257,7 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
     browser = await puppeteer.launch({
       headless: 'new',
       executablePath: process.env.CHROMIUM_PATH || '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium',
+      protocolTimeout: 120000,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',

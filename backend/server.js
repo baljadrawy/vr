@@ -127,6 +127,85 @@ app.get('/api/libs/lottie.js', (req, res) => {
 // تقديم الفيديوهات
 app.use('/output', express.static(process.env.OUTPUT_DIR || './output'));
 
+// مجلد الأنيميشنات
+const ANIMATIONS_DIR = path.join(__dirname, '../animations');
+if (!fs.existsSync(ANIMATIONS_DIR)) {
+  fs.mkdirSync(ANIMATIONS_DIR, { recursive: true });
+}
+
+// تقديم ملفات الأنيميشن
+app.use('/animations', express.static(ANIMATIONS_DIR));
+
+// رفع ملف أنيميشن Lottie
+app.post('/api/animations/upload', express.json({ limit: '50mb' }), (req, res) => {
+  try {
+    const { name, data } = req.body;
+    
+    if (!name || !data) {
+      return res.status(400).json({ success: false, error: 'اسم الملف والبيانات مطلوبة' });
+    }
+    
+    // تنظيف اسم الملف
+    const safeName = name.replace(/[^a-zA-Z0-9_\-\.]/g, '_').replace(/\.json$/i, '') + '.json';
+    const filePath = path.join(ANIMATIONS_DIR, safeName);
+    
+    // التحقق من أن البيانات JSON صالحة
+    try {
+      JSON.parse(data);
+    } catch (e) {
+      return res.status(400).json({ success: false, error: 'ملف JSON غير صالح' });
+    }
+    
+    fs.writeFileSync(filePath, data);
+    
+    res.json({ 
+      success: true, 
+      filename: safeName,
+      url: `/animations/${safeName}`
+    });
+  } catch (error) {
+    logger.error('Animation upload error:', error);
+    res.status(500).json({ success: false, error: 'فشل رفع الملف' });
+  }
+});
+
+// قائمة الأنيميشنات المحفوظة
+app.get('/api/animations/list', (req, res) => {
+  try {
+    const files = fs.readdirSync(ANIMATIONS_DIR)
+      .filter(f => f.endsWith('.json'))
+      .map(f => ({
+        name: f.replace('.json', ''),
+        filename: f,
+        url: `/animations/${f}`
+      }));
+    
+    res.json({ success: true, animations: files });
+  } catch (error) {
+    logger.error('Animation list error:', error);
+    res.json({ success: true, animations: [] });
+  }
+});
+
+// حذف أنيميشن
+app.delete('/api/animations/:filename', (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const safeName = filename.replace(/[^a-zA-Z0-9_\-\.]/g, '_');
+    const filePath = path.join(ANIMATIONS_DIR, safeName);
+    
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ success: false, error: 'الملف غير موجود' });
+    }
+  } catch (error) {
+    logger.error('Animation delete error:', error);
+    res.status(500).json({ success: false, error: 'فشل حذف الملف' });
+  }
+});
+
 // الصفحة الرئيسية
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend', 'index.html'));

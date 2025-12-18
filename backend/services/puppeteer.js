@@ -21,6 +21,9 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
         '--disable-web-security',
         '--font-render-hinting=none',
         '--disable-font-subpixel-positioning',
+        '--force-color-profile=srgb',
+        '--disable-threaded-scrolling',
+        '--disable-canvas-aa',
         '--window-size=' + width + ',' + height
       ],
       defaultViewport: {
@@ -271,6 +274,9 @@ async function captureFrames({ htmlPath, sessionDir, width, height, duration, fp
         '--disable-web-security',
         '--font-render-hinting=none',
         '--disable-font-subpixel-positioning',
+        '--force-color-profile=srgb',
+        '--disable-threaded-scrolling',
+        '--disable-canvas-aa',
         '--window-size=' + width + ',' + height
       ],
       defaultViewport: {

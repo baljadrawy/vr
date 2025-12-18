@@ -13,11 +13,18 @@ class PreviewManager {
         
         this.debounceTimer = null;
         this.debounceDelay = 1000; // تأخير ثانية واحدة
+        
+        // تخزين كود المكتبات
+        this.gsapCode = '';
+        this.twemojiCode = '';
 
         this.init();
     }
 
-    init() {
+    async init() {
+        // تحميل المكتبات أولاً
+        await this.loadLibraries();
+        
         // تحديث المعاينة عند تغيير الكود (مع debounce)
         [this.htmlEditor, this.cssEditor, this.jsEditor].forEach(editor => {
             editor.addEventListener('input', () => this.debouncedUpdate());
@@ -42,6 +49,24 @@ class PreviewManager {
         // تحديث أولي
         this.updateResolutionDisplay();
         this.updatePreview();
+    }
+    
+    async loadLibraries() {
+        try {
+            // تحميل GSAP
+            const gsapResponse = await fetch('/api/libs/gsap.js');
+            if (gsapResponse.ok) {
+                this.gsapCode = await gsapResponse.text();
+            }
+            
+            // تحميل Twemoji
+            const twemojiResponse = await fetch('/api/libs/twemoji.js');
+            if (twemojiResponse.ok) {
+                this.twemojiCode = await twemojiResponse.text();
+            }
+        } catch (error) {
+            console.error('Error loading libraries:', error);
+        }
     }
 
     debouncedUpdate() {
@@ -79,7 +104,7 @@ class PreviewManager {
         const scriptRegex = /<script\s+src=["'][^"']*gsap[^"']*["'][^>]*>\s*<\/script>/gi;
         const htmlClean = html.replace(scriptRegex, '');
 
-        // إنشاء المحتوى الكامل مع GSAP محلية
+        // إنشاء المحتوى الكامل مع GSAP و Twemoji مضمّنة
         const fullHTML = `
 <!DOCTYPE html>
 <html>
@@ -92,18 +117,33 @@ class PreviewManager {
             margin: 0; 
             padding: 0; 
             overflow: hidden;
+            font-family: 'Noto Sans Arabic', 'Noto Sans', sans-serif;
         }
         ${css}
     </style>
-    <script src="/api/libs/gsap.js"></script>
 </head>
 <body>
     ${htmlClean}
+    <script>
+        // GSAP مضمّنة محلياً
+        ${this.gsapCode}
+    </script>
+    <script>
+        // Twemoji مضمّنة محلياً
+        ${this.twemojiCode}
+    </script>
     <script>
         try {
             ${js}
         } catch (error) {
             console.error('JavaScript Error:', error);
+        }
+        // تحويل الإيموجي إلى SVG
+        if (typeof twemoji !== 'undefined') {
+            twemoji.parse(document.body, {
+                folder: 'svg',
+                ext: '.svg'
+            });
         }
     </script>
 </body>

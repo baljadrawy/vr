@@ -100,6 +100,17 @@ app.get('/api/libs/gsap.js', (req, res) => {
   }
 });
 
+// تقديم مكتبة Twemoji محلياً
+app.get('/api/libs/twemoji.js', (req, res) => {
+  const twemojiPath = path.join(__dirname, '../node_modules/twemoji/dist/twemoji.min.js');
+  if (fs.existsSync(twemojiPath)) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(twemojiPath);
+  } else {
+    res.status(404).send('// Twemoji not found');
+  }
+});
+
 // تقديم الفيديوهات
 app.use('/output', express.static(process.env.OUTPUT_DIR || './output'));
 

@@ -17,6 +17,7 @@ class PreviewManager {
         // تخزين كود المكتبات
         this.gsapCode = '';
         this.twemojiCode = '';
+        this.lottieCode = '';
         this.librariesLoaded = false;
 
         this.init();
@@ -54,10 +55,11 @@ class PreviewManager {
     
     async loadLibraries() {
         try {
-            // تحميل GSAP و Twemoji بالتوازي
-            const [gsapResponse, twemojiResponse] = await Promise.all([
+            // تحميل GSAP و Twemoji و Lottie بالتوازي
+            const [gsapResponse, twemojiResponse, lottieResponse] = await Promise.all([
                 fetch('/api/libs/gsap.js'),
-                fetch('/api/libs/twemoji.js')
+                fetch('/api/libs/twemoji.js'),
+                fetch('/api/libs/lottie.js')
             ]);
             
             if (gsapResponse.ok) {
@@ -68,6 +70,11 @@ class PreviewManager {
             if (twemojiResponse.ok) {
                 this.twemojiCode = await twemojiResponse.text();
                 console.log('✅ Twemoji loaded for preview');
+            }
+            
+            if (lottieResponse.ok) {
+                this.lottieCode = await lottieResponse.text();
+                console.log('✅ Lottie loaded for preview');
             }
             
             this.librariesLoaded = true;
@@ -139,6 +146,10 @@ class PreviewManager {
     <script>
         // Twemoji مضمّنة محلياً
         ${this.twemojiCode}
+    </script>
+    <script>
+        // Lottie مضمّنة محلياً (لأنيميشنات After Effects)
+        ${this.lottieCode}
     </script>
     <script>
         try {

@@ -192,3 +192,9 @@ node backend/server.js
 - إضافة نظام حفظ المشاريع
 - إضافة شريط التقدم المباشر (SSE)
 - إضافة زر إعادة تشغيل المعاينة
+- **تحسين GSAP**: تحميل محلي بدل CDN (require.resolve)
+- **تحسين Streaming**: إضافة Backpressure handling (drain event)
+- **تحسين Timeout**: protocolTimeout: 0, navigationTimeout: 0
+- **تحسين FFmpeg**: حساب التقدم بناءً على duration الفعلي
+- **تحسين CSS**: aspect-ratio مع max-width للمعاينة
+- **تحسين UX**: شريط تقدم أحمر عند الخطأ

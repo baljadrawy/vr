@@ -134,6 +134,13 @@ class PreviewManager {
             overflow: hidden;
             font-family: 'Noto Sans Arabic', 'Noto Sans', sans-serif;
         }
+        img.emoji {
+            height: 1em;
+            width: 1em;
+            margin: 0 0.05em 0 0.1em;
+            vertical-align: -0.1em;
+            display: inline-block;
+        }
         ${css}
     </style>
 </head>

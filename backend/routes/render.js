@@ -81,9 +81,12 @@ router.post('/', async (req, res) => {
 <html>
 <head>
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; overflow: hidden; font-family: 'Noto Sans Arabic', 'Noto Color Emoji', sans-serif; }
+        body { background: #000; overflow: hidden; font-family: 'Open Sans', 'Segoe UI', Tahoma, 'Noto Sans Arabic', 'Noto Color Emoji', sans-serif; }
         img.emoji { height: 1em; width: 1em; vertical-align: -0.1em; }
         ${css}
     </style>

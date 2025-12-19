@@ -12,7 +12,7 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
     try {
         browser = await puppeteer.launch({
             headless: 'new',
-            executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
+            executablePath: process.env.CHROMIUM_PATH || puppeteer.executablePath(),
             protocolTimeout: 0, 
             args: [
                 '--no-sandbox',

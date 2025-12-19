@@ -120,31 +120,41 @@ class App {
         });
 
         // استخدام الأنيميشن
-        useBtn.addEventListener('click', () => {
+        useBtn.addEventListener('click', async () => {
             const selected = lottieList.options[lottieList.selectedIndex];
             if (!selected || !selected.value) return;
 
             const url = selected.value;
             const name = selected.textContent;
+            
+            // إنشاء اسم متغير صالح من اسم الملف
+            const varName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_data';
+            
+            try {
+                // جلب محتوى JSON من الخادم
+                this.showNotification('جاري تحميل بيانات الأنيميشن...');
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('فشل جلب الملف');
+                const jsonData = await response.json();
+                const jsonString = JSON.stringify(jsonData);
+                
+                // إنشاء سطر المتغير
+                const variableLine = `const ${varName} = ${jsonString};\n\n`;
+                
+                // إضافة المتغير في أعلى كود JavaScript الموجود
+                const currentJs = this.jsEditor.value;
+                this.jsEditor.value = variableLine + currentJs;
 
-            const htmlCode = `<div id="lottie-container" style="width: 100%; height: 100%;"></div>`;
-            const jsCode = `lottie.loadAnimation({
-  container: document.getElementById('lottie-container'),
-  renderer: 'svg',
-  loop: true,
-  autoplay: true,
-  path: '${url}'
-});`;
+                if (window.previewManager) {
+                    window.previewManager.updatePreview();
+                }
 
-            this.htmlEditor.value = htmlCode;
-            this.jsEditor.value = jsCode;
-
-            if (window.previewManager) {
-                window.previewManager.updatePreview();
+                this.saveToLocalStorage();
+                this.showNotification(`تم إضافة "${varName}" في أعلى الكود ✅\nاستخدمه: animationData: ${varName}`);
+            } catch (err) {
+                console.error('Error loading animation:', err);
+                this.showNotification('فشل تحميل الأنيميشن ❌');
             }
-
-            this.saveToLocalStorage();
-            this.showNotification(`تم تحميل أنيميشن "${name}" ✅`);
         });
 
         // حذف الأنيميشن

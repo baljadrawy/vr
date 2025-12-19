@@ -1,0 +1,202 @@
+function loadScript(src){
+  return new Promise((resolve,reject)=>{
+    // avoid duplicates
+    if ([...document.scripts].some(s => s.src === src)) return resolve();
+    const s=document.createElement("script");
+    s.src=src;
+    s.onload=resolve;
+    s.onerror=reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function fetchJson(url){
+  const res = await fetch(url, { cache: "no-store" });
+  if(!res.ok) throw new Error(`${res.status} ${res.statusText} → ${url}`);
+  return await res.json();
+}
+
+/** Validation: enforce autoplay:false */
+function enforceNoAutoplay(options, name){
+  if(options.autoplay === true){
+    console.warn(`[Validation] ${name}: autoplay:true is not allowed. Forcing autoplay:false`);
+    options.autoplay = false;
+  }
+  return options;
+}
+
+/** Frame-accurate driver (GSAP controls frames) */
+function driveLottie(anim, durationSec){
+  if(!anim) return null;
+  const totalFrames = anim.getDuration(true);
+  const ctrl = { f: 0 };
+
+  const tween = gsap.to(ctrl, {
+    f: Math.max(0, totalFrames - 1),
+    duration: durationSec,
+    ease: "none",
+    paused: true,
+    onUpdate: () => anim.goToAndStop(ctrl.f, true),
+  });
+
+  tween.stopAtStart = () => {
+    tween.pause(0);
+    anim.goToAndStop(0, true);
+  };
+
+  return tween;
+}
+
+async function start(){
+  // GSAP (احتياطي - إذا عندك محلي راح يكون موجود أصلاً)
+  if(!window.gsap){
+    try{ await loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"); }
+    catch(e){ console.error("GSAP blocked", e); fallback(); return; }
+  }
+
+  // Lottie-web (احتياطي)
+  if(!window.lottie){
+    try{ await loadScript("https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.13.0/lottie.min.js"); }
+    catch(e){ console.warn("Lottie blocked: icons skipped", e); }
+  }
+
+  // ✅ paths per your system
+  const base = window.location.origin;
+  const babyUrl = `${base}/animations/baby.json`;
+  const giftUrl = `${base}/animations/gift.json`;
+  console.log("Lottie URLs:", { babyUrl, giftUrl });
+
+  // global template vars
+  window.animBaby = null;
+  window.animGift = null;
+
+  let babyDrive = null;
+  let giftDrive = null;
+
+  if(window.lottie){
+    try{
+      const [babyData, giftData] = await Promise.all([
+        fetchJson(babyUrl),
+        fetchJson(giftUrl),
+      ]);
+
+      // Baby
+      const babyOpts = enforceNoAutoplay({
+        container: document.getElementById("lottieBaby"),
+        renderer: "svg",
+        loop: false,
+        autoplay: false,
+        animationData: babyData,
+        rendererSettings: { preserveAspectRatio: "xMidYMid meet" }
+      }, "Baby");
+
+      window.animBaby = lottie.loadAnimation(babyOpts);
+
+      // Gift
+      const giftOpts = enforceNoAutoplay({
+        container: document.getElementById("lottieGift"),
+        renderer: "svg",
+        loop: false,
+        autoplay: false,
+        animationData: giftData,
+        rendererSettings: { preserveAspectRatio: "xMidYMid meet" }
+      }, "Gift");
+
+      window.animGift = lottie.loadAnimation(giftOpts);
+
+      // Wait DOM ready
+      await new Promise(r => window.animBaby.addEventListener("DOMLoaded", r));
+      await new Promise(r => window.animGift.addEventListener("DOMLoaded", r));
+
+      // Frame drivers (deterministic for video)
+      babyDrive = driveLottie(window.animBaby, 1.7);
+      giftDrive = driveLottie(window.animGift, 1.4);
+
+      babyDrive && babyDrive.stopAtStart();
+      giftDrive && giftDrive.stopAtStart();
+
+    }catch(err){
+      console.error("Lottie load failed:", err);
+    }
+  }
+
+  // Scenes animation
+  const scenes = ["#s1","#s2","#s3","#s4","#s5"].map(q=>document.querySelector(q));
+  const bar = document.querySelector("#bar");
+
+  // Durations (~26s)
+  const D = [6000, 5200, 5000, 6500, 3500];
+
+  gsap.set(scenes, { opacity: 0 });
+  gsap.set(bar, { width: "0%" });
+
+  function progress(ms){
+    gsap.killTweensOf(bar);
+    gsap.set(bar, { width: "0%" });
+    gsap.to(bar, { width: "100%", duration: ms/1000, ease: "none" });
+  }
+
+  function sceneIn(scene){
+    const lines = scene.querySelectorAll(".line");
+    const tl = gsap.timeline();
+    tl.set(scene, { opacity: 1 });
+    tl.fromTo(scene, { x: 60, filter: "blur(10px)" }, { x: 0, filter: "blur(0)", duration: 0.6, ease: "power3.out" });
+    tl.from(lines, { y: 22, opacity: 0, duration: 0.5, ease: "power3.out", stagger: 0.12 }, "-=0.2");
+    return tl;
+  }
+
+  function sceneOut(scene){
+    return gsap.timeline().to(scene, { y: -18, opacity: 0, duration: 0.45, ease: "power2.inOut" });
+  }
+
+  const master = gsap.timeline({ repeat: -1 });
+
+  scenes.forEach((scene, i) => {
+    master.add(() => {
+      progress(D[i]);
+
+      // Lottie per scene (frame-accurate)
+      if (babyDrive){
+        if (i === 0) babyDrive.restart(true);
+        else babyDrive.stopAtStart();
+      }
+      if (giftDrive){
+        if (i === 4) giftDrive.restart(true);
+        else giftDrive.stopAtStart();
+      }
+    });
+
+    master.add(sceneIn(scene));
+    master.to({}, { duration: Math.max(1, (D[i]/1000) - 1.4) });
+    master.add(sceneOut(scene));
+  });
+
+  master.play(0);
+}
+
+function fallback(){
+  // Simple non-GSAP fallback
+  const scenes = [...document.querySelectorAll(".scene")];
+  const bar = document.querySelector("#bar");
+  const D = [6000, 5200, 5000, 6500, 3500];
+  let i = 0;
+
+  function show(n){
+    scenes.forEach((s, idx) => s.style.opacity = (idx === n ? "1" : "0"));
+    bar.style.transition = "none";
+    bar.style.width = "0%";
+    setTimeout(() => {
+      bar.style.transition = `width ${D[n]}ms linear`;
+      bar.style.width = "100%";
+    }, 30);
+  }
+
+  function loop(){
+    show(i);
+    setTimeout(() => { i = (i + 1) % scenes.length; loop(); }, D[i]);
+  }
+
+  loop();
+}
+
+start();

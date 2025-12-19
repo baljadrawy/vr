@@ -37,3 +37,4 @@ externalPort = 80
 [deployment]
 deploymentTarget = "autoscale"
 run = ["node", "backend/server.js"]
+build = ["npx", "puppeteer", "browsers", "install", "chrome"]

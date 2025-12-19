@@ -58,6 +58,41 @@ router.get('/progress/:jobId', (req, res) => {
     });
 });
 
+// دالة لاستبدال مسارات الأنيميشن بالبيانات المضمنة
+async function embedAnimationData(jsCode) {
+    const animationsDir = path.resolve('./animations');
+    
+    // البحث عن كل path: "/animations/..." أو path: '/animations/...'
+    const pathRegex = /path\s*:\s*["']\/animations\/([^"']+)["']/g;
+    let modifiedJs = jsCode;
+    let match;
+    const replacements = [];
+    
+    // جمع كل المطابقات
+    while ((match = pathRegex.exec(jsCode)) !== null) {
+        const fullMatch = match[0];
+        const filename = match[1];
+        replacements.push({ fullMatch, filename, index: match.index });
+    }
+    
+    // استبدال كل مسار ببيانات الأنيميشن
+    for (const { fullMatch, filename } of replacements) {
+        try {
+            const filePath = path.join(animationsDir, filename);
+            const jsonContent = await fs.readFile(filePath, 'utf8');
+            // التحقق من صحة JSON
+            JSON.parse(jsonContent);
+            // استبدال path بـ animationData
+            modifiedJs = modifiedJs.replace(fullMatch, `animationData: ${jsonContent}`);
+            console.log(`✅ تم تضمين الأنيميشن: ${filename}`);
+        } catch (err) {
+            console.error(`⚠️ فشل تحميل الأنيميشن ${filename}:`, err.message);
+        }
+    }
+    
+    return modifiedJs;
+}
+
 router.post('/', async (req, res) => {
     const jobId = uuidv4();
     const { html = '', css = '', js = '', resolution = 'HD_Vertical', format = 'MP4', duration = 15, fps = 30, quality = 'high' } = req.body;
@@ -71,6 +106,9 @@ router.post('/', async (req, res) => {
 
     try {
         await fs.mkdir(sessionDir, { recursive: true });
+
+        // تضمين بيانات الأنيميشن في JavaScript
+        const jsWithEmbeddedAnimations = await embedAnimationData(js);
 
         // تنظيف الكود وحقن نظام المزامنة
         const scriptRegex = /<script\s+src=["'][^"']*gsap[^"']*["'][^>]*>\s*<\/script>/gi;
@@ -114,7 +152,7 @@ router.post('/', async (req, res) => {
         };
 
         window.onload = () => {
-            try { ${js} } catch (e) { console.error('JS Error:', e); }
+            try { ${jsWithEmbeddedAnimations} } catch (e) { console.error('JS Error:', e); }
             if (typeof twemoji !== 'undefined') {
                 twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
             }

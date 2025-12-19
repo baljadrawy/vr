@@ -58,39 +58,59 @@ router.get('/progress/:jobId', (req, res) => {
     });
 });
 
-// دالة لاستبدال مسارات الأنيميشن بالبيانات المضمنة
-async function embedAnimationData(jsCode) {
+// دالة لتحميل كل ملفات الأنيميشن وإنشاء كود اعتراض fetch
+async function loadAllAnimations() {
     const animationsDir = path.resolve('./animations');
+    const animations = {};
     
-    // البحث عن كل path: "/animations/..." أو path: '/animations/...'
-    const pathRegex = /path\s*:\s*["']\/animations\/([^"']+)["']/g;
-    let modifiedJs = jsCode;
-    let match;
-    const replacements = [];
-    
-    // جمع كل المطابقات
-    while ((match = pathRegex.exec(jsCode)) !== null) {
-        const fullMatch = match[0];
-        const filename = match[1];
-        replacements.push({ fullMatch, filename, index: match.index });
-    }
-    
-    // استبدال كل مسار ببيانات الأنيميشن
-    for (const { fullMatch, filename } of replacements) {
-        try {
-            const filePath = path.join(animationsDir, filename);
-            const jsonContent = await fs.readFile(filePath, 'utf8');
-            // التحقق من صحة JSON
-            JSON.parse(jsonContent);
-            // استبدال path بـ animationData
-            modifiedJs = modifiedJs.replace(fullMatch, `animationData: ${jsonContent}`);
-            console.log(`✅ تم تضمين الأنيميشن: ${filename}`);
-        } catch (err) {
-            console.error(`⚠️ فشل تحميل الأنيميشن ${filename}:`, err.message);
+    try {
+        const files = await fs.readdir(animationsDir);
+        for (const file of files) {
+            if (file.endsWith('.json')) {
+                try {
+                    const filePath = path.join(animationsDir, file);
+                    const content = await fs.readFile(filePath, 'utf8');
+                    JSON.parse(content); // التحقق من صحة JSON
+                    animations[file] = content;
+                    console.log(`✅ تم تحميل الأنيميشن: ${file}`);
+                } catch (err) {
+                    console.error(`⚠️ فشل تحميل ${file}:`, err.message);
+                }
+            }
         }
+    } catch (err) {
+        console.log('📁 مجلد animations غير موجود أو فارغ');
     }
     
-    return modifiedJs;
+    return animations;
+}
+
+// إنشاء كود JavaScript لاعتراض fetch وإرجاع البيانات المحلية
+function createFetchInterceptor(animations) {
+    if (Object.keys(animations).length === 0) return '';
+    
+    const animationsJson = {};
+    for (const [filename, content] of Object.entries(animations)) {
+        animationsJson[filename] = JSON.parse(content);
+    }
+    
+    return `
+    // اعتراض fetch لإرجاع بيانات الأنيميشن المحلية
+    window.__embeddedAnimations = ${JSON.stringify(animationsJson)};
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options) {
+        const urlStr = typeof url === 'string' ? url : url.toString();
+        const match = urlStr.match(/\\/animations\\/([^?\\/]+\\.json)/);
+        if (match && window.__embeddedAnimations[match[1]]) {
+            console.log('✅ تم تحميل الأنيميشن محلياً:', match[1]);
+            return Promise.resolve(new Response(JSON.stringify(window.__embeddedAnimations[match[1]]), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            }));
+        }
+        return originalFetch.apply(this, arguments);
+    };
+    `;
 }
 
 router.post('/', async (req, res) => {
@@ -107,8 +127,9 @@ router.post('/', async (req, res) => {
     try {
         await fs.mkdir(sessionDir, { recursive: true });
 
-        // تضمين بيانات الأنيميشن في JavaScript
-        const jsWithEmbeddedAnimations = await embedAnimationData(js);
+        // تحميل كل ملفات الأنيميشن
+        const animations = await loadAllAnimations();
+        const fetchInterceptor = createFetchInterceptor(animations);
 
         // تنظيف الكود وحقن نظام المزامنة
         const scriptRegex = /<script\s+src=["'][^"']*gsap[^"']*["'][^>]*>\s*<\/script>/gi;
@@ -135,6 +156,7 @@ router.post('/', async (req, res) => {
     <script>${twemojiCode}</script>
     <script>${lottieCode}</script>
     <script>
+        ${fetchInterceptor}
         // نظام التحكم بالوقت والمزامنة (GSAP + Lottie + CSS)
         window.__virtualTime = 0;
         window.__advanceTime = function(newTime) {
@@ -152,7 +174,7 @@ router.post('/', async (req, res) => {
         };
 
         window.onload = () => {
-            try { ${jsWithEmbeddedAnimations} } catch (e) { console.error('JS Error:', e); }
+            try { ${js} } catch (e) { console.error('JS Error:', e); }
             if (typeof twemoji !== 'undefined') {
                 twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
             }

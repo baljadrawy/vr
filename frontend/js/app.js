@@ -128,7 +128,8 @@ class App {
             const name = selected.textContent;
             
             // إنشاء اسم متغير صالح من اسم الملف
-            const varName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_data';
+            const varName = name.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') + '_data';
+            const containerId = 'lottie_' + Date.now();
             
             try {
                 // جلب محتوى JSON من الخادم
@@ -138,19 +139,61 @@ class App {
                 const jsonData = await response.json();
                 const jsonString = JSON.stringify(jsonData);
                 
-                // إنشاء سطر المتغير
-                const variableLine = `const ${varName} = ${jsonString};\n\n`;
+                // إضافة HTML للحاوية
+                const htmlCode = `<div id="${containerId}" class="lottie-container"></div>`;
+                const currentHtml = this.htmlEditor.value.trim();
+                if (!currentHtml || currentHtml === '<!-- ضع كود HTML هنا -->') {
+                    this.htmlEditor.value = htmlCode;
+                } else {
+                    this.htmlEditor.value = currentHtml + '\n' + htmlCode;
+                }
                 
-                // إضافة المتغير في أعلى كود JavaScript الموجود
-                const currentJs = this.jsEditor.value;
-                this.jsEditor.value = variableLine + currentJs;
+                // إضافة CSS للحاوية
+                const cssCode = `
+.lottie-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#${containerId} {
+    width: 80%;
+    height: 80%;
+}`;
+                const currentCss = this.cssEditor.value.trim();
+                if (!currentCss || currentCss.includes('/* ضع كود CSS هنا */')) {
+                    this.cssEditor.value = cssCode;
+                } else if (!currentCss.includes('.lottie-container')) {
+                    this.cssEditor.value = currentCss + '\n' + cssCode;
+                }
+                
+                // إنشاء كود JavaScript كامل
+                const jsCode = `const ${varName} = ${jsonString};
+
+const anim_${containerId} = lottie.loadAnimation({
+    container: document.getElementById('${containerId}'),
+    renderer: 'svg',
+    loop: true,
+    autoplay: true,
+    animationData: ${varName}
+});
+`;
+                
+                // إضافة الكود في أعلى JavaScript
+                const currentJs = this.jsEditor.value.trim();
+                if (!currentJs || currentJs === '// ضع كود JavaScript هنا') {
+                    this.jsEditor.value = jsCode;
+                } else {
+                    this.jsEditor.value = jsCode + '\n' + currentJs;
+                }
 
                 if (window.previewManager) {
                     window.previewManager.updatePreview();
                 }
 
                 this.saveToLocalStorage();
-                this.showNotification(`تم إضافة "${varName}" في أعلى الكود ✅\nاستخدمه: animationData: ${varName}`);
+                this.showNotification(`تم إضافة الأنيميشن "${name}" بنجاح ✅`);
             } catch (err) {
                 console.error('Error loading animation:', err);
                 this.showNotification('فشل تحميل الأنيميشن ❌');

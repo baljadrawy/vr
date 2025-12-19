@@ -1,0 +1,43 @@
+at PuppeteerNode.executablePath (/home/runner/workspace/node_modules/puppeteer-core/lib/cjs/puppeteer/node/PuppeteerNode.js:160:31)
+12-19 20:28:40
+at captureFramesStreaming (/home/runner/workspace/backend/services/puppeteer.js:15:68)
+12-19 20:28:40
+at ChromeLauncher.resolveExecutablePath (/home/runner/workspace/node_modules/puppeteer-core/lib/cjs/puppeteer/node/ProductLauncher.js:285:27)
+12-19 20:28:40
+[074517a3-5d97-45ce-a6d6-310e8ec97178] Error: Error: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+12-19 20:28:40
+at PuppeteerNode.executablePath (/home/runner/workspace/node_modules/puppeteer-core/lib/cjs/puppeteer/node/PuppeteerNode.js:160:31)
+12-19 20:28:40
+1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+12-19 20:28:40
+at ChromeLauncher.executablePath (/home/runner/workspace/node_modules/puppeteer-core/lib/cjs/puppeteer/node/ChromeLauncher.js:210:25)
+12-19 20:28:40
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+12-19 20:28:40
+2. your cache path is incorrectly configured (which is: /home/runner/.cache/puppeteer).
+12-19 20:28:40
+at ChromeLauncher.resolveExecutablePath (/home/runner/workspace/node_modules/puppeteer-core/lib/cjs/puppeteer/node/ProductLauncher.js:285:27)
+12-19 20:28:40
+at /home/runner/workspace/backend/routes/render.js:199:15
+12-19 20:28:40
+For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.
+12-19 20:28:40
+2. your cache path is incorrectly configured (which is: /home/runner/.cache/puppeteer).
+12-19 20:28:40
+at captureFramesStreaming (/home/runner/workspace/backend/services/puppeteer.js:15:68)
+12-19 20:28:40
+at /home/runner/workspace/backend/routes/render.js:199:15
+12-19 20:28:40
+Puppeteer Error: Error: Could not find Chrome (ver. 121.0.6167.85). This can occur if either
+12-19 20:28:40
+1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or
+12-19 20:28:40
+at ChromeLauncher.executablePath (/home/runner/workspace/node_modules/puppeteer-core/lib/cjs/puppeteer/node/ChromeLauncher.js:210:25)
+12-19 20:48:43
+system: received signal terminated
+12-19 20:48:43
+info: SIGTERM received, shutting down gracefully {"timestamp":"2025-12-19T17:48:43.513Z"}
+12-19 20:48:43
+command finished successfully with exit code 0
+12-19 20:48:43
+main done, exiting

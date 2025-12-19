@@ -1,4 +1,5 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 const path = require('path');
 
 /**
@@ -10,11 +11,15 @@ async function captureFramesStreaming({ htmlPath, ffmpegStdin, width, height, du
     let browser;
 
     try {
+        // الحصول على مسار المتصفح (بيئة التطوير أو الإنتاج)
+        const executablePath = process.env.CHROMIUM_PATH || await chromium.executablePath();
+        
         browser = await puppeteer.launch({
-            headless: 'new',
-            executablePath: process.env.CHROMIUM_PATH || puppeteer.executablePath(),
+            headless: chromium.headless,
+            executablePath: executablePath,
             protocolTimeout: 0, 
             args: [
+                ...chromium.args,
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',

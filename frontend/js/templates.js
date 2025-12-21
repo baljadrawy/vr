@@ -2,7 +2,7 @@
 const templates = {
     gradient: {
         name: 'تدرج متحرك',
-        html: `<div class="gradient-container">
+        html: `<div class="gradient-container reel-container" data-capture-root>
     <div class="gradient-box"></div>
     <h1 class="text">تدرج متحرك</h1>
 </div>`,
@@ -64,7 +64,7 @@ const templates = {
 
     particles: {
         name: 'جزيئات متحركة',
-        html: `<div class="particles-container">
+        html: `<div class="particles-container reel-container" data-capture-root>
     <canvas id="particlesCanvas"></canvas>
     <h1 class="overlay-text">جزيئات متحركة</h1>
 </div>`,
@@ -204,7 +204,7 @@ requestAnimationFrame(animate);`
 
     text: {
         name: 'نص متحرك',
-        html: `<div class="text-container">
+        html: `<div class="text-container reel-container" data-capture-root>
     <div class="animated-text">
         <span>م</span>
         <span>ر</span>
@@ -268,7 +268,7 @@ requestAnimationFrame(animate);`
 
     shapes: {
         name: 'أشكال متحركة',
-        html: `<div class="shapes-container">
+        html: `<div class="shapes-container reel-container" data-capture-root>
     <div class="shape shape-1"></div>
     <div class="shape shape-2"></div>
     <div class="shape shape-3"></div>

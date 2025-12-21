@@ -81,6 +81,22 @@ class VideoGeneratorWASM {
         return resolutions[resolutionType] || resolutions['HD_Vertical'];
     }
 
+    getCaptureTarget(iframeDoc) {
+        return (
+            iframeDoc.querySelector('[data-capture-root]') ||
+            iframeDoc.querySelector('.reel-container') ||
+            iframeDoc.querySelector('#root') ||
+            iframeDoc.body
+        );
+    }
+
+    lockTargetSize(target, width, height) {
+        target.style.width = width + 'px';
+        target.style.height = height + 'px';
+        target.style.overflow = 'hidden';
+        target.style.position = 'relative';
+    }
+
     async captureFrames(previewElement, config) {
         const { width, height, fps, duration } = config;
         const totalFrames = fps * duration;
@@ -172,7 +188,11 @@ class VideoGeneratorWASM {
             if (previewElement.tagName === 'IFRAME') {
                 try {
                     const iframeDoc = previewElement.contentDocument || previewElement.contentWindow.document;
-                    targetElement = iframeDoc.body;
+                    targetElement = this.getCaptureTarget(iframeDoc);
+                    
+                    if (frameIndex === 0) {
+                        this.lockTargetSize(targetElement, width, height);
+                    }
                 } catch (e) {
                     targetElement = previewElement;
                 }
@@ -186,7 +206,7 @@ class VideoGeneratorWASM {
                 scale: 2,
                 useCORS: true,
                 allowTaint: false,
-                backgroundColor: '#000000',
+                backgroundColor: null,
                 logging: false
             });
             
@@ -198,12 +218,12 @@ class VideoGeneratorWASM {
         } catch (error) {
             console.error('Frame capture error:', error);
             ctx.fillStyle = '#1a1a2e';
-            ctx.fillRect(0, 0, width, height);
+            ctx.fillRect(0, 0, width * 2, height * 2);
             ctx.fillStyle = '#ffffff';
             ctx.font = '48px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(`Frame ${frameIndex + 1}`, width / 2, height / 2);
+            ctx.fillText(`Frame ${frameIndex + 1}`, width, height);
             this.frames.push(canvas.toDataURL('image/png'));
         }
     }

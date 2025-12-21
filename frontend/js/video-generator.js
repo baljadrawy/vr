@@ -94,19 +94,75 @@ class VideoGeneratorWASM {
         
         this.updateProgress('capturing', 'بدء التقاط الإطارات...', 25);
         
+        let iframeDoc = null;
+        if (previewElement.tagName === 'IFRAME') {
+            try {
+                iframeDoc = previewElement.contentDocument || previewElement.contentWindow.document;
+            } catch (e) {
+                console.warn('Cannot access iframe document');
+            }
+        }
+        
         for (let i = 0; i < totalFrames; i++) {
+            const currentTime = i / fps;
+            
+            if (iframeDoc) {
+                this.seekAnimationsToTime(iframeDoc, currentTime);
+            }
+            
+            await this.delay(50);
+            
             await this.captureFrame(previewElement, canvas, ctx, width, height, i, totalFrames);
             
             const progress = 25 + (i / totalFrames) * 25;
             if (i % 5 === 0) {
                 this.updateProgress('capturing', `التقاط الإطار ${i + 1}/${totalFrames}`, progress);
             }
-            
-            await this.delay(1000 / fps);
+        }
+        
+        if (iframeDoc) {
+            this.resumeAnimations(iframeDoc);
         }
         
         this.updateProgress('capturing', `تم التقاط ${totalFrames} إطار!`, 50);
         return this.frames;
+    }
+    
+    seekAnimationsToTime(doc, timeInSeconds) {
+        const allElements = doc.querySelectorAll('*');
+        allElements.forEach(el => {
+            const computedStyle = window.getComputedStyle(el);
+            const animationName = computedStyle.animationName;
+            
+            if (animationName && animationName !== 'none') {
+                el.style.animationPlayState = 'paused';
+                el.style.animationDelay = `-${timeInSeconds}s`;
+            }
+        });
+        
+        if (doc.defaultView && doc.defaultView.gsap) {
+            const gsap = doc.defaultView.gsap;
+            if (gsap.globalTimeline) {
+                gsap.globalTimeline.pause();
+                gsap.globalTimeline.seek(timeInSeconds);
+            }
+        }
+        
+        if (doc.defaultView && doc.defaultView.seekToTime) {
+            doc.defaultView.seekToTime(timeInSeconds);
+        }
+    }
+    
+    resumeAnimations(doc) {
+        const allElements = doc.querySelectorAll('*');
+        allElements.forEach(el => {
+            el.style.animationPlayState = '';
+            el.style.animationDelay = '';
+        });
+        
+        if (doc.defaultView && doc.defaultView.gsap && doc.defaultView.gsap.globalTimeline) {
+            doc.defaultView.gsap.globalTimeline.resume();
+        }
     }
 
     async captureFrame(previewElement, canvas, ctx, width, height, frameIndex, totalFrames) {

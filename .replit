@@ -1,10 +1,10 @@
-modules = ["web", "nodejs-20", "postgresql-16"]
+modules = ["web", "nodejs-20", "postgresql-16", "rust-stable"]
 [agent]
 expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["ffmpeg", "chromium", "noto-fonts", "noto-fonts-color-emoji", "noto-fonts-cjk-sans"]
+packages = ["ffmpeg", "chromium", "noto-fonts", "noto-fonts-color-emoji", "noto-fonts-cjk-sans", "wasm-pack"]
 
 [workflows]
 runButton = "Project"

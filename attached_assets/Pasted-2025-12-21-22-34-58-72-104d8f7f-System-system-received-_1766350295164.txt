@@ -1,0 +1,108 @@
+2025-12-21 22:34:58.72
+104d8f7f
+System
+system: received signal terminated
+2025-12-21 22:34:58.72
+104d8f7f
+System
+command finished with error [node server.js]: signal: terminated
+2025-12-21 22:34:58.81
+104d8f7f
+System
+main done, exiting
+2025-12-21 22:37:22.63
+5809c86a
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2025-12-21 22:37:22.63
+5809c86a
+System
+starting up user application
+2025-12-21 22:37:22.63
+5809c86a
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-12-21 22:37:23.50
+5809c86a
+User
+🎬 Web to Video Converter (WASM Edition)
+2025-12-21 22:37:23.50
+5809c86a
+User
+🌐 Server running at http://0.0.0.0:5000
+2025-12-21 22:37:23.50
+5809c86a
+User
+✅ All video processing happens in the browser!
+2025-12-21 23:19:06.71
+5809c86a
+System
+system: received signal terminated
+2025-12-21 23:19:06.71
+5809c86a
+System
+command finished with error [node server.js]: signal: terminated
+2025-12-21 23:19:06.79
+5809c86a
+System
+main done, exiting
+2025-12-21 23:25:33.39
+5809c86a
+System
+starting up user application
+2025-12-21 23:25:33.39
+5809c86a
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2025-12-21 23:25:33.39
+5809c86a
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-12-21 23:25:33.86
+5809c86a
+User
+✅ All video processing happens in the browser!
+2025-12-21 23:25:33.86
+5809c86a
+User
+🌐 Server running at http://0.0.0.0:5000
+2025-12-21 23:25:33.86
+5809c86a
+User
+🎬 Web to Video Converter (WASM Edition)
+2025-12-21 23:36:07.32
+244445e1
+System
+starting up user application
+2025-12-21 23:36:07.32
+244445e1
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2025-12-21 23:36:07.33
+244445e1
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-12-21 23:36:07.99
+244445e1
+User
+🎬 Web to Video Converter (WASM Edition)
+2025-12-21 23:36:08.00
+244445e1
+User
+✅ All video processing happens in the browser!
+2025-12-21 23:36:08.00
+244445e1
+User
+🌐 Server running at http://0.0.0.0:5000
+2025-12-21 23:37:39.97
+5809c86a
+System
+system: received signal terminated
+2025-12-21 23:37:39.98
+5809c86a
+System
+command finished with error [node server.js]: signal: terminated
+2025-12-21 23:37:40.06
+5809c86a
+System
+main done, exiting

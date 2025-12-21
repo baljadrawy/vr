@@ -13,7 +13,7 @@ class VideoGeneratorWASM {
             this.updateProgress('loading', 'جاري تحميل محرك الفيديو...', 5);
             
             const { FFmpeg } = await import('https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js');
-            const { fetchFile, toBlobURL } = await import('https://unpkg.com/@ffmpeg/util@0.12.1/dist/esm/index.js');
+            const { fetchFile } = await import('https://unpkg.com/@ffmpeg/util@0.12.1/dist/esm/index.js');
             
             this.ffmpeg = new FFmpeg();
             this.fetchFile = fetchFile;
@@ -29,15 +29,17 @@ class VideoGeneratorWASM {
             
             this.updateProgress('loading', 'جاري تحميل ملفات FFmpeg...', 10);
             
-            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+            const coreURL = '/libs/ffmpeg/ffmpeg-core.js';
+            const wasmURL = '/libs/ffmpeg/ffmpeg-core.wasm';
+            
             await this.ffmpeg.load({
-                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-                wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                coreURL: coreURL,
+                wasmURL: wasmURL,
             });
             
             this.isLoaded = true;
             this.updateProgress('ready', 'محرك الفيديو جاهز!', 20);
-            console.log('✅ FFmpeg.wasm loaded successfully');
+            console.log('✅ FFmpeg.wasm loaded successfully (local)');
             return true;
             
         } catch (error) {
@@ -66,10 +68,9 @@ class VideoGeneratorWASM {
         return resolutions[resolutionType] || resolutions['HD_Vertical'];
     }
 
-    async captureFrames(iframe, config) {
+    async captureFrames(previewElement, config) {
         const { width, height, fps, duration } = config;
         const totalFrames = fps * duration;
-        const frameInterval = 1000 / fps;
         
         this.frames = [];
         
@@ -80,40 +81,48 @@ class VideoGeneratorWASM {
         
         this.updateProgress('capturing', 'بدء التقاط الإطارات...', 25);
         
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-        const iframeBody = iframeDoc.body;
-        
         for (let i = 0; i < totalFrames; i++) {
-            const currentTime = i * frameInterval;
-            
-            if (iframe.contentWindow && iframe.contentWindow.gsap) {
-                iframe.contentWindow.gsap.globalTimeline.time(currentTime / 1000);
-            }
-            
-            await this.captureFrame(iframe, canvas, ctx, width, height);
+            await this.captureFrame(previewElement, canvas, ctx, width, height, i, totalFrames);
             
             const progress = 25 + (i / totalFrames) * 25;
-            this.updateProgress('capturing', `التقاط الإطار ${i + 1}/${totalFrames}`, progress);
+            if (i % 5 === 0) {
+                this.updateProgress('capturing', `التقاط الإطار ${i + 1}/${totalFrames}`, progress);
+            }
             
-            await this.delay(10);
+            await this.delay(1000 / fps);
         }
         
         this.updateProgress('capturing', `تم التقاط ${totalFrames} إطار!`, 50);
         return this.frames;
     }
 
-    async captureFrame(iframe, canvas, ctx, width, height) {
+    async captureFrame(previewElement, canvas, ctx, width, height, frameIndex, totalFrames) {
         try {
-            const html2canvas = window.html2canvas || (await this.loadHtml2Canvas());
+            const html2canvas = window.html2canvas;
+            if (!html2canvas) {
+                throw new Error('html2canvas not loaded');
+            }
             
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            const captureCanvas = await html2canvas(iframeDoc.body, {
+            let targetElement;
+            if (previewElement.tagName === 'IFRAME') {
+                try {
+                    const iframeDoc = previewElement.contentDocument || previewElement.contentWindow.document;
+                    targetElement = iframeDoc.body;
+                } catch (e) {
+                    targetElement = previewElement;
+                }
+            } else {
+                targetElement = previewElement;
+            }
+            
+            const captureCanvas = await html2canvas(targetElement, {
                 width: width,
                 height: height,
                 scale: 1,
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#000000',
+                logging: false
             });
             
             ctx.drawImage(captureCanvas, 0, 0, width, height);
@@ -123,28 +132,15 @@ class VideoGeneratorWASM {
             
         } catch (error) {
             console.error('Frame capture error:', error);
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, width, height);
             ctx.fillStyle = '#ffffff';
             ctx.font = '48px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('Frame Error', width / 2, height / 2);
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`Frame ${frameIndex + 1}`, width / 2, height / 2);
             this.frames.push(canvas.toDataURL('image/png'));
         }
-    }
-
-    async loadHtml2Canvas() {
-        return new Promise((resolve, reject) => {
-            if (window.html2canvas) {
-                resolve(window.html2canvas);
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
-            script.onload = () => resolve(window.html2canvas);
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
     }
 
     async generateVideo(config) {
@@ -182,7 +178,8 @@ class VideoGeneratorWASM {
         const qualitySettings = {
             'high': '-crf 18',
             'medium': '-crf 23',
-            'low': '-crf 28'
+            'low': '-crf 28',
+            'fast': '-crf 23'
         };
         const crf = qualitySettings[quality] || qualitySettings['medium'];
         
@@ -201,8 +198,8 @@ class VideoGeneratorWASM {
                     '-i', 'frame%05d.png',
                     '-c:v', 'libx264',
                     '-pix_fmt', 'yuv420p',
-                    crf,
-                    '-preset', 'medium',
+                    ...crf.split(' '),
+                    '-preset', 'fast',
                     outputFile
                 ]);
             }
@@ -213,9 +210,13 @@ class VideoGeneratorWASM {
             
             for (let i = 0; i < this.frames.length; i++) {
                 const fileName = `frame${String(i).padStart(5, '0')}.png`;
-                await this.ffmpeg.deleteFile(fileName);
+                try {
+                    await this.ffmpeg.deleteFile(fileName);
+                } catch (e) {}
             }
-            await this.ffmpeg.deleteFile(outputFile);
+            try {
+                await this.ffmpeg.deleteFile(outputFile);
+            } catch (e) {}
             
             const mimeType = format === 'GIF' ? 'image/gif' : 'video/mp4';
             const blob = new Blob([data.buffer], { type: mimeType });
@@ -240,10 +241,6 @@ class VideoGeneratorWASM {
 
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    reshapeArabicText(text) {
-        return text;
     }
 
     clearFrames() {

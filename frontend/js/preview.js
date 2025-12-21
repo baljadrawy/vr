@@ -119,6 +119,80 @@ class PreviewManager {
         const scriptRegex = /<script\s+src=["'][^"']*gsap[^"']*["'][^>]*>\s*<\/script>/gi;
         const htmlClean = html.replace(scriptRegex, '');
 
+        // Virtual Time Controller - نظام الوقت الافتراضي للتحكم الدقيق
+        const virtualTimeController = `
+        (function() {
+            // Virtual Time System
+            window.__virtualTime = 0;
+            window.__isRecording = false;
+            window.__animationCallbacks = [];
+            
+            // دالة تسجيل callback للأنيميشن
+            window.registerAnimation = function(callback) {
+                window.__animationCallbacks.push(callback);
+            };
+            
+            // دالة الانتقال لوقت معين (بالملي ثانية)
+            window.seekToTime = function(timeMs) {
+                window.__virtualTime = timeMs;
+                window.__isRecording = true;
+                
+                // استدعاء كل callbacks مسجلة
+                window.__animationCallbacks.forEach(function(cb) {
+                    try { cb(timeMs); } catch(e) { console.error(e); }
+                });
+                
+                // إيقاف CSS animations وضبط الوقت
+                document.querySelectorAll('*').forEach(function(el) {
+                    var style = window.getComputedStyle(el);
+                    if (style.animationName && style.animationName !== 'none') {
+                        el.style.animationPlayState = 'paused';
+                        el.style.animationDelay = '-' + (timeMs / 1000) + 's';
+                    }
+                });
+                
+                // GSAP timeline control
+                if (window.gsap && window.gsap.globalTimeline) {
+                    window.gsap.globalTimeline.pause();
+                    window.gsap.globalTimeline.seek(timeMs / 1000);
+                }
+                
+                // Lottie control
+                if (window.__lottieAnimations) {
+                    window.__lottieAnimations.forEach(function(anim) {
+                        anim.goToAndStop(timeMs, false);
+                    });
+                }
+            };
+            
+            // دالة استئناف الأنيميشن
+            window.resumeAnimations = function() {
+                window.__isRecording = false;
+                document.querySelectorAll('*').forEach(function(el) {
+                    el.style.animationPlayState = '';
+                    el.style.animationDelay = '';
+                });
+                if (window.gsap && window.gsap.globalTimeline) {
+                    window.gsap.globalTimeline.resume();
+                }
+            };
+            
+            // الحصول على الوقت الحالي
+            window.getVirtualTime = function() {
+                if (window.__isRecording) {
+                    return window.__virtualTime;
+                }
+                return performance.now();
+            };
+            
+            // تخزين Lottie animations
+            window.__lottieAnimations = [];
+            window.registerLottie = function(anim) {
+                window.__lottieAnimations.push(anim);
+            };
+        })();
+        `;
+
         // إنشاء المحتوى الكامل مع GSAP و Twemoji مضمّنة
         const fullHTML = `
 <!DOCTYPE html>
@@ -146,6 +220,10 @@ class PreviewManager {
 </head>
 <body>
     ${htmlClean}
+    <script>
+        // Virtual Time Controller - يجب أن يكون أول شيء
+        ${virtualTimeController}
+    </script>
     <script>
         // GSAP مضمّنة محلياً
         ${this.gsapCode}

@@ -129,39 +129,16 @@ class VideoGeneratorWASM {
     }
     
     seekAnimationsToTime(doc, timeInSeconds) {
-        const allElements = doc.querySelectorAll('*');
-        allElements.forEach(el => {
-            const computedStyle = window.getComputedStyle(el);
-            const animationName = computedStyle.animationName;
-            
-            if (animationName && animationName !== 'none') {
-                el.style.animationPlayState = 'paused';
-                el.style.animationDelay = `-${timeInSeconds}s`;
-            }
-        });
-        
-        if (doc.defaultView && doc.defaultView.gsap) {
-            const gsap = doc.defaultView.gsap;
-            if (gsap.globalTimeline) {
-                gsap.globalTimeline.pause();
-                gsap.globalTimeline.seek(timeInSeconds);
-            }
-        }
+        const timeMs = timeInSeconds * 1000;
         
         if (doc.defaultView && doc.defaultView.seekToTime) {
-            doc.defaultView.seekToTime(timeInSeconds);
+            doc.defaultView.seekToTime(timeMs);
         }
     }
     
     resumeAnimations(doc) {
-        const allElements = doc.querySelectorAll('*');
-        allElements.forEach(el => {
-            el.style.animationPlayState = '';
-            el.style.animationDelay = '';
-        });
-        
-        if (doc.defaultView && doc.defaultView.gsap && doc.defaultView.gsap.globalTimeline) {
-            doc.defaultView.gsap.globalTimeline.resume();
+        if (doc.defaultView && doc.defaultView.resumeAnimations) {
+            doc.defaultView.resumeAnimations();
         }
     }
 

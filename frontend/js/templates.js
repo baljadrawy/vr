@@ -106,67 +106,100 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+// Deterministic Particle System
 class Particle {
-    constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 3 + 1;
-        this.speedX = Math.random() * 3 - 1.5;
-        this.speedY = Math.random() * 3 - 1.5;
+    constructor(seed) {
+        this.seed = seed;
+        this.initX = this.seededRandom(seed) * canvas.width;
+        this.initY = this.seededRandom(seed + 1) * canvas.height;
+        this.size = this.seededRandom(seed + 2) * 3 + 1;
+        this.speedX = this.seededRandom(seed + 3) * 3 - 1.5;
+        this.speedY = this.seededRandom(seed + 4) * 3 - 1.5;
         this.color = 'rgba(255, 255, 255, 0.8)';
     }
 
-    update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
-        if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+    seededRandom(s) {
+        const x = Math.sin(s * 9999) * 10000;
+        return x - Math.floor(x);
     }
 
-    draw() {
+    getPosition(timeMs) {
+        const t = timeMs / 1000;
+        let x = this.initX + this.speedX * t * 60;
+        let y = this.initY + this.speedY * t * 60;
+        
+        // Bounce logic
+        const bounceX = Math.floor(x / canvas.width);
+        const bounceY = Math.floor(y / canvas.height);
+        x = x % canvas.width;
+        y = y % canvas.height;
+        if (x < 0) x += canvas.width;
+        if (y < 0) y += canvas.height;
+        if (bounceX % 2 !== 0) x = canvas.width - x;
+        if (bounceY % 2 !== 0) y = canvas.height - y;
+        
+        return { x, y };
+    }
+
+    draw(timeMs) {
+        const pos = this.getPosition(timeMs);
         ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, this.size, 0, Math.PI * 2);
         ctx.fill();
+        return pos;
     }
 }
 
 const particles = [];
 for (let i = 0; i < 100; i++) {
-    particles.push(new Particle());
+    particles.push(new Particle(i * 5));
 }
 
-function animate() {
+function renderFrame(timeMs) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    particles.forEach(particle => {
-        particle.update();
-        particle.draw();
-    });
+    const positions = particles.map(p => p.draw(timeMs));
 
     // رسم الخطوط بين الجزيئات القريبة
-    for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-            const dx = particles[i].x - particles[j].x;
-            const dy = particles[i].y - particles[j].y;
+    for (let i = 0; i < positions.length; i++) {
+        for (let j = i + 1; j < positions.length; j++) {
+            const dx = positions[i].x - positions[j].x;
+            const dy = positions[i].y - positions[j].y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < 100) {
                 ctx.strokeStyle = 'rgba(255, 255, 255, ' + (1 - distance / 100) * 0.3 + ')';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.moveTo(particles[i].x, particles[i].y);
-                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.moveTo(positions[i].x, positions[i].y);
+                ctx.lineTo(positions[j].x, positions[j].y);
                 ctx.stroke();
             }
         }
     }
+}
 
+// تسجيل callback للتسجيل
+if (window.registerAnimation) {
+    window.registerAnimation(renderFrame);
+}
+
+// تشغيل في الوضع العادي
+let startTime = null;
+function animate(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const elapsed = timestamp - startTime;
+    
+    // في وضع التسجيل، لا نحدث
+    if (!window.__isRecording) {
+        renderFrame(elapsed);
+    }
+    
     requestAnimationFrame(animate);
 }
 
-animate();`
+requestAnimationFrame(animate);`
     },
 
     text: {

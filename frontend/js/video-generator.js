@@ -128,7 +128,10 @@ class VideoGeneratorWASM {
                 throw new Error('FFmpeg not loaded properly');
             }
             
+            const corePath = window.location.origin + '/libs/ffmpeg/ffmpeg-core.js';
+            
             this.ffmpeg = window.FFmpeg.createFFmpeg({
+                corePath: corePath,
                 log: false,
                 progress: ({ ratio }) => {
                     const percent = Math.round(ratio * 100);
@@ -146,6 +149,9 @@ class VideoGeneratorWASM {
                 this.ffmpeg.load(),
                 ffmpegLoadTimeout
             ]);
+            
+            await this.ffmpeg.run('-version');
+            console.log('✅ ffmpeg -version OK');
             
             this.isLoaded = true;
             this.updateProgress('ready', 'محرك الفيديو جاهز!', 20);

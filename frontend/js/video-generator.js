@@ -6,6 +6,28 @@ class VideoGeneratorWASM {
         this.progressCallback = null;
     }
 
+    checkBrowserSupport() {
+        const issues = [];
+        
+        if (typeof SharedArrayBuffer === 'undefined') {
+            issues.push('SharedArrayBuffer غير متوفر - يتطلب HTTPS أو localhost');
+        }
+        
+        if (typeof WebAssembly === 'undefined') {
+            issues.push('WebAssembly غير مدعوم في هذا المتصفح');
+        }
+        
+        const isSecureContext = window.isSecureContext;
+        if (!isSecureContext) {
+            issues.push('يجب فتح الموقع عبر HTTPS');
+        }
+        
+        return {
+            supported: issues.length === 0,
+            issues: issues
+        };
+    }
+
     async loadScript(url) {
         return new Promise((resolve, reject) => {
             if (document.querySelector(`script[src="${url}"]`)) {
@@ -16,7 +38,7 @@ class VideoGeneratorWASM {
             script.src = url;
             script.crossOrigin = 'anonymous';
             script.onload = resolve;
-            script.onerror = reject;
+            script.onerror = () => reject(new Error(`فشل تحميل: ${url}`));
             document.head.appendChild(script);
         });
     }
@@ -25,9 +47,24 @@ class VideoGeneratorWASM {
         if (this.isLoaded) return true;
 
         try {
+            const support = this.checkBrowserSupport();
+            if (!support.supported) {
+                const errorMsg = support.issues.join('\n');
+                console.error('❌ Browser not supported:', errorMsg);
+                this.updateProgress('error', errorMsg, 0);
+                return false;
+            }
+            
             this.updateProgress('loading', 'جاري تحميل محرك الفيديو...', 5);
             
-            await this.loadScript('/libs/ffmpeg/ffmpeg.min.js');
+            const loadTimeout = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('انتهى الوقت - تحقق من اتصال الإنترنت')), 60000)
+            );
+            
+            await Promise.race([
+                this.loadScript('/libs/ffmpeg/ffmpeg.min.js'),
+                loadTimeout
+            ]);
             
             this.updateProgress('loading', 'جاري تهيئة FFmpeg...', 10);
             
@@ -48,7 +85,14 @@ class VideoGeneratorWASM {
             
             this.updateProgress('loading', 'جاري تحميل ملفات FFmpeg (~24MB)...', 15);
             
-            await this.ffmpeg.load();
+            const ffmpegLoadTimeout = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('فشل تحميل FFmpeg - حاول مرة أخرى')), 120000)
+            );
+            
+            await Promise.race([
+                this.ffmpeg.load(),
+                ffmpegLoadTimeout
+            ]);
             
             this.isLoaded = true;
             this.updateProgress('ready', 'محرك الفيديو جاهز!', 20);
@@ -57,7 +101,15 @@ class VideoGeneratorWASM {
             
         } catch (error) {
             console.error('❌ Failed to load FFmpeg:', error);
-            this.updateProgress('error', `فشل تحميل محرك الفيديو: ${error.message}`, 0);
+            let userMessage = error.message;
+            
+            if (error.message.includes('SharedArrayBuffer')) {
+                userMessage = 'المتصفح لا يدعم هذه الميزة - جرب Chrome أو Edge';
+            } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                userMessage = 'فشل الاتصال - تحقق من الإنترنت وحاول مجدداً';
+            }
+            
+            this.updateProgress('error', userMessage, 0);
             return false;
         }
     }

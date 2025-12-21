@@ -134,13 +134,35 @@ node server.js
 
 ## التحديثات الأخيرة | Recent Changes
 
+### ديسمبر 2025 - v2.1 (Memory Optimized)
+- **حل مشكلة OOM**: معالجة الإطارات على دفعات (4 ثواني لكل دفعة)
+- **JPEG بدل PNG**: توفير ~70% من الذاكرة
+- **بدون Base64**: كتابة Uint8Array مباشرة للـ FS
+- **Concat بدون إعادة ترميز**: دمج الأجزاء بسرعة
+- **GIF احترافي**: MP4 → GIF باستخدام palettegen
+- **دعم مدة أطول**: حتى 20 ثانية بدون OOM
+- **settleAfterSeek**: تثبيت layout قبل الالتقاط
+
+### Pipeline الجديد
+```
+capture frame → JPEG bytes → write to FS → 
+encode part (4 sec) → delete JPGs → repeat →
+concat parts → output MP4/GIF
+```
+
+### إعدادات الإنتاج
+- fps: 24-30
+- framesPerPart: fps × 4
+- JPEG quality: 0.85
+- crf: 18-23
+- preset: veryfast
+- maxDuration: 20 ثانية
+
 ### ديسمبر 2025 - WASM Edition (v2.0)
 - **تحويل كامل للـ WASM**: كل معالجة الفيديو في المتصفح!
 - **FFmpeg.wasm**: بدل Puppeteer + FFmpeg على السيرفر
 - **html2canvas**: التقاط الإطارات من الـ iframe
 - **إزالة الباك اند الثقيل**: لا مزيد من Puppeteer أو Chromium
-- **حجم أصغر**: الاعتماديات أقل بكثير
-- **خصوصية أعلى**: الكود لا يُرسل لأي سيرفر
 
 ### سابقاً
 - نظام رفع أنيميشنات Lottie

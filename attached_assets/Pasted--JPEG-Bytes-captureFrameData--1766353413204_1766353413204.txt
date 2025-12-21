@@ -1,0 +1,124 @@
+تعديل دالة الالتقاط → JPEG Bytes (بدون أي مراجع متبقية)
+
+استبدل captureFrameData بالكامل بهذه النسخة:
+
+async captureFrameBytes(previewElement, canvas, ctx, width, height, frameIndex) {
+  const html2canvas = window.html2canvas;
+
+  let targetElement;
+  if (previewElement.tagName === 'IFRAME') {
+    const iframeDoc = previewElement.contentDocument;
+    targetElement = this.getCaptureTarget(iframeDoc);
+
+    if (frameIndex === 0) {
+      this.lockTargetSize(targetElement, width, height);
+    }
+  } else {
+    targetElement = previewElement;
+  }
+
+  const captureCanvas = await html2canvas(targetElement, {
+    width,
+    height,
+    scale: 1,
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: null,
+    logging: false,
+    imageTimeout: 0
+  });
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.drawImage(captureCanvas, 0, 0, width, height);
+
+  // ✅ JPEG = أقل RAM + أسرع FS
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+
+  // حماية إضافية من تسريبات html2canvas
+  captureCanvas.width = 0;
+  captureCanvas.height = 0;
+
+  return bytes;
+}
+
+
+النتيجة:
+
+لا Base64
+
+لا atob
+
+لا نسخ مضاعفة
+
+تقليل استهلاك RAM وFS ~ 60–70%
+
+2) تسمية الإطارات (JPEG)
+function pad5(n) { return String(n).padStart(5, '0'); }
+
+// مثال:
+const fileName = `frame_${pad5(local + 1)}.jpg`;
+this.ffmpeg.FS('writeFile', fileName, bytes);
+
+3) أمر FFmpeg (JPEG → MP4)
+
+حدّث input فقط (بقية الإعدادات ممتازة):
+
+await this.ffmpeg.run(
+  '-framerate', String(fps),
+  '-i', 'frame_%05d.jpg',
+  '-c:v', 'libx264',
+  '-pix_fmt', 'yuv420p',
+  '-crf', '18',              // 18–20 ممتاز مع JPEG 0.85
+  '-preset', 'veryfast',
+  '-tune', 'animation',
+  '-movflags', '+faststart',
+  partName
+);
+
+4) Concat النهائي (مع حماية التوقيت)
+await this.ffmpeg.run(
+  '-f', 'concat',
+  '-safe', '0',
+  '-i', 'list.txt',
+  '-fflags', '+genpts',
+  '-c', 'copy',
+  outputFile
+);
+
+5) Cleanup (تحديث الامتداد فقط)
+
+تأكد أن دالة التنظيف تحذف .jpg بدل .png:
+
+// داخل cleanup
+if (name.startsWith('frame_') && name.endsWith('.jpg')) {
+  safeUnlink(ffmpeg, name);
+}
+
+6) إعدادات موصى بها (جاهزة للإنتاج)
+
+fps: 24 أو 30
+
+framesPerPart: fps * 4 (مثالي)
+
+JPEG quality: 0.85
+
+crf: 18–20
+
+scale: 1
+
+مدة: حتى 15–20 ثانية بدون OOM (حسب الجهاز)
+
+7) ملاحظة GIF (مهم)
+
+لا تستخدم concat بـ -c copy مباشرة مع GIF
+
+المسار الصحيح:
+
+JPEG → parts MP4
+
+concat MP4
+
+MP4 → GIF باستخدام palettegen / paletteuse
+
+إذا تبغى، أجهز لك دالة MP4 → GIF احترافية (ناعمة + ألوان نظيفة).

@@ -1,0 +1,166 @@
+تمام — عندك “Batching” بالاسم فقط، لكن فعليًا أنت ما زلت تعمل أسوأ 3 أشياء:
+
+ترجع Base64 من captureFrameData
+
+تخزن Base64 في batchFrames (هذا وحده يقتل الذاكرة)
+
+تكتب كل الإطارات لكل الفيديو قبل ما تشفّر (ولا فيه concat ولا حذف)
+
+خلّينا نعدّل بأقل تغيير ممكن مع أعلى أثر:
+
+A) عدّل captureFrameData ليُرجّع Bytes مباشرة (بدون Base64 وبدون batchFrames)
+
+بدل return canvas.toDataURL(...) خليه يطلع Uint8Array:
+
+async captureFrameBytes(previewElement, canvas, ctx, width, height, frameIndex) {
+  const html2canvas = window.html2canvas;
+
+  let targetElement;
+  if (previewElement.tagName === 'IFRAME') {
+    const iframeDoc = previewElement.contentDocument;
+    targetElement = this.getCaptureTarget(iframeDoc);
+
+    if (frameIndex === 0) {
+      this.lockTargetSize(targetElement, width, height);
+    }
+  } else {
+    targetElement = previewElement;
+  }
+
+  const captureCanvas = await html2canvas(targetElement, {
+    width,
+    height,
+    scale: 1,
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: null,
+    logging: false,
+    imageTimeout: 0
+  });
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.drawImage(captureCanvas, 0, 0, width, height);
+
+  // 🔥 بديل Base64: PNG bytes مباشرة
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+  const buf = await blob.arrayBuffer();
+  return new Uint8Array(buf);
+}
+
+
+نقطة مهمة: الآن ما فيه atob ولا split(',') ولا تخزين Base64.
+
+B) لا تخزن الدفعة في batchFrames أساسًا
+
+اكتب كل إطار للـ FS مباشرة بعد التقاطه (هذا يقلل peak memory كثير):
+
+function pad5(n) { return String(n).padStart(5, '0'); }
+
+function safeUnlink(ffmpeg, path) {
+  try { ffmpeg.FS('unlink', path); } catch {}
+}
+
+
+داخل حلقة الالتقاط:
+
+const framesPerPart = fps * 4; // 4 ثواني لكل part (عدلها)
+const partCount = Math.ceil(totalFrames / framesPerPart);
+const partFiles = [];
+
+for (let part = 0; part < partCount; part++) {
+  const start = part * framesPerPart;
+  const end = Math.min(start + framesPerPart, totalFrames);
+  const framesInPart = end - start;
+
+  // 1) اكتب Frames لهذه الدفعة (تبدأ من 1 داخل الدفعة)
+  for (let local = 0; local < framesInPart; local++) {
+    const i = start + local;
+    const currentTime = i / fps;
+
+    this.seekAnimationsToTime(iframeDoc, currentTime);
+
+    const bytes = await this.captureFrameBytes(previewElement, canvas, ctx, width, height, i);
+    const fileName = `frame_${pad5(local + 1)}.png`;
+
+    this.ffmpeg.FS('writeFile', fileName, bytes);
+  }
+
+  // 2) شفّر الدفعة إلى part.mp4
+  const partName = `part_${pad5(part + 1)}.mp4`;
+  await this.ffmpeg.run(
+    '-framerate', String(fps),
+    '-i', 'frame_%05d.png',
+    '-c:v', 'libx264',
+    '-pix_fmt', 'yuv420p',
+    '-crf', String(crf),
+    '-preset', 'veryfast',
+    '-tune', 'animation',
+    '-movflags', '+faststart',
+    partName
+  );
+  partFiles.push(partName);
+
+  // 3) احذف PNGs مباشرة بعد التشفير
+  for (let k = 1; k <= framesInPart; k++) {
+    safeUnlink(this.ffmpeg, `frame_${pad5(k)}.png`);
+  }
+}
+
+
+لاحظ: أنت كنت تستخدم frame%05d.png، أنا جعلتها frame_%05d.png لتكون واضحة.
+
+C) concat نهائي بدون إعادة ترميز
+
+بعد ما تخلص كل parts:
+
+const list = partFiles.map(p => `file '${p}'`).join('\n');
+this.ffmpeg.FS('writeFile', 'list.txt', new TextEncoder().encode(list));
+
+await this.ffmpeg.run(
+  '-f', 'concat',
+  '-safe', '0',
+  '-i', 'list.txt',
+  '-c', 'copy',
+  outputFile
+);
+
+// cleanup
+safeUnlink(this.ffmpeg, 'list.txt');
+for (const p of partFiles) safeUnlink(this.ffmpeg, p);
+
+D) تغييرات “صغيرة” لكنها قاتلة للأخطاء
+1) لا تستخدم batchSize = 30 كمعنى batching
+
+30 إطار عند 30fps = ثانية واحدة = ما يقلل شيء تقريبًا لو ما كنت تشفّر وتحذف بعد كل batch.
+
+الخيار الأفضل:
+
+framesPerPart = fps * 3 أو fps * 4 أو fps * 5
+
+2) canvas.toDataURL('image/png', 0.9) غير مفيد
+
+quality لا يعمل مع PNG.
+
+3) html2canvas نفسه يستهلك ذاكرة
+
+بعد ctx.drawImage(captureCanvas, ...) حاول تترك captureCanvas يروح بدون أي مراجع، ولا تخزنه في arrays.
+
+E) إذا تبغى “أقوى نسخة” بدون تغيير المنهج: JPG للإطارات (MP4 فقط)
+
+لو output MP4 فقط، هذا يقلل FS RAM كثير:
+
+canvas.toBlob(res, 'image/jpeg', 0.85)
+
+غيّر input إلى frame_%05d.jpg
+
+بس أبقيت لك PNG لأنك ذكرت MP4 أو GIF.
+
+F) أين ستختفي الـ OOM بالضبط؟
+
+حذف Base64 يزيل 2–3 نسخ لكل إطار
+
+عدم تخزين batchFrames يمنع تضخم heap
+
+encoding + حذف بعد كل part يمنع تكدّس PNG داخل FS
+
+concat يجمع بدون إعادة ترميز (خفيف)

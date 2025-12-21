@@ -1,0 +1,316 @@
+هذا باكج “جاهز للإنتاج” يجمع (1) نسخة موحّدة + (2) تحسينات أداء مع بقاء الـ pipeline deterministic (seekToTime).
+
+مهم: الكود أدناه يفترض ffmpeg.wasm API القديمة عندك (this.ffmpeg.run + this.ffmpeg.FS). لو تستخدم API الجديدة (ffmpeg.exec / ffmpeg.writeFile) قلّي وأحوّله لك فورًا.
+
+A) Helpers + Cleanup (JPEG)
+function pad5(n) { return String(n).padStart(5, '0'); }
+
+function safeUnlink(ffmpeg, path) {
+  try { ffmpeg.FS('unlink', path); } catch {}
+}
+
+function safeReaddir(ffmpeg, dir = '/') {
+  try { return ffmpeg.FS('readdir', dir); } catch { return []; }
+}
+
+function cleanupWasmTemp({
+  ffmpeg,
+  framesInPart = 0,
+  framesOnly = false,
+  cleanParts = true,
+  cleanList = true,
+  cleanHtml2canvasCache = false
+} = {}) {
+  if (!ffmpeg) return;
+
+  // fast delete known frames
+  if (framesInPart > 0) {
+    for (let i = 1; i <= framesInPart; i++) {
+      safeUnlink(ffmpeg, `frame_${pad5(i)}.jpg`);
+    }
+    if (framesOnly) {
+      if (cleanHtml2canvasCache && window.html2canvas) {
+        try { window.html2canvas.cache = {}; } catch {}
+      }
+      return;
+    }
+  }
+
+  // sweep leftovers
+  const files = safeReaddir(ffmpeg, '/');
+  for (const f of files) {
+    if (f.startsWith('frame_') && f.endsWith('.jpg')) safeUnlink(ffmpeg, f);
+    if (cleanParts && f.startsWith('part_') && f.endsWith('.mp4')) safeUnlink(ffmpeg, f);
+  }
+
+  if (cleanList) safeUnlink(ffmpeg, 'list.txt');
+
+  if (cleanHtml2canvasCache && window.html2canvas) {
+    try { window.html2canvas.cache = {}; } catch {}
+  }
+}
+
+B) Capture (JPEG bytes) + أداء أفضل
+
+تحسينين مهمين هنا:
+
+بدون Base64
+
+“تهدئة” بسيطة بعد seek قبل الالتقاط (rAF مرتين) لتثبيت layout داخل iframe (تقلل artifacts)
+
+async function nextFrame() {
+  await new Promise(r => requestAnimationFrame(() => r()));
+}
+
+async function settleAfterSeek() {
+  // فريمين عادة كافية لتثبيت layout بعد تغييرات JS/CSS
+  await nextFrame();
+  await nextFrame();
+}
+
+async function captureFrameJpegBytes({
+  previewElement,
+  canvas,
+  ctx,
+  width,
+  height,
+  frameIndex,
+  getCaptureTarget,
+  lockTargetSize
+}) {
+  const html2canvas = window.html2canvas;
+
+  let targetElement;
+  if (previewElement.tagName === 'IFRAME') {
+    const iframeDoc = previewElement.contentDocument;
+    targetElement = getCaptureTarget(iframeDoc);
+
+    if (frameIndex === 0) {
+      lockTargetSize(targetElement, width, height);
+    }
+  } else {
+    targetElement = previewElement;
+  }
+
+  const captureCanvas = await html2canvas(targetElement, {
+    width,
+    height,
+    scale: 1,
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: null,
+    logging: false,
+    imageTimeout: 0
+  });
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.drawImage(captureCanvas, 0, 0, width, height);
+
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+
+  // تقليل احتمالات تسريب html2canvas
+  captureCanvas.width = 0;
+  captureCanvas.height = 0;
+
+  return bytes;
+}
+
+C) MP4 Renderer (Partial Encoding + Concat + Cleanup)
+
+framesPerPart = fps * 4 افتراضي
+
+حذف إطارات كل جزء مباشرة
+
+concat بـ -fflags +genpts لتفادي مشاكل timestamps
+
+async function renderMP4Deterministic({
+  ffmpeg,
+  previewElement,
+  iframeDoc,                 // doc الخاص بالـ iframe
+  canvas,
+  ctx,
+  width,
+  height,
+  duration,
+  fps = 30,
+  maxDuration = 15,
+  crf = 18,
+  preset = 'veryfast',
+  framesPerPart = null,      // لو null => fps*4
+  outputFile = 'output.mp4',
+  seekAnimationsToTime,      // (doc, seconds)=>void
+  getCaptureTarget,
+  lockTargetSize,
+  onProgress,                // (p)=>void optional
+  abortSignal                // AbortSignal optional
+}) {
+  const effectiveDuration = Math.min(duration, maxDuration);
+  const totalFrames = Math.floor(fps * effectiveDuration);
+  const partFrames = framesPerPart ?? (fps * 4);
+  const partCount = Math.ceil(totalFrames / partFrames);
+
+  const partFiles = [];
+
+  const throwIfAborted = () => {
+    if (abortSignal?.aborted) throw new Error('Aborted');
+  };
+
+  // تنظيف أي بقايا من تشغيل سابق
+  cleanupWasmTemp({ ffmpeg, framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+
+  for (let part = 0; part < partCount; part++) {
+    throwIfAborted();
+
+    const start = part * partFrames;
+    const end = Math.min(start + partFrames, totalFrames);
+    const framesInPart = end - start;
+
+    // 1) write frames for this part
+    for (let local = 0; local < framesInPart; local++) {
+      throwIfAborted();
+
+      const i = start + local;
+      const currentTime = i / fps;
+
+      seekAnimationsToTime(iframeDoc, currentTime);
+      await settleAfterSeek();
+
+      const bytes = await captureFrameJpegBytes({
+        previewElement,
+        canvas,
+        ctx,
+        width,
+        height,
+        frameIndex: i,
+        getCaptureTarget,
+        lockTargetSize
+      });
+
+      ffmpeg.FS('writeFile', `frame_${pad5(local + 1)}.jpg`, bytes);
+
+      if (onProgress) {
+        const captureProgress = (i + 1) / totalFrames;
+        onProgress({ phase: 'capturing', captureProgress, frame: i + 1, totalFrames });
+      }
+    }
+
+    // 2) encode part
+    const partName = `part_${pad5(part + 1)}.mp4`;
+    await ffmpeg.run(
+      '-framerate', String(fps),
+      '-i', 'frame_%05d.jpg',
+      '-c:v', 'libx264',
+      '-pix_fmt', 'yuv420p',
+      '-crf', String(crf),
+      '-preset', preset,
+      '-tune', 'animation',
+      '-movflags', '+faststart',
+      partName
+    );
+    partFiles.push(partName);
+
+    // 3) cleanup frames
+    cleanupWasmTemp({
+      ffmpeg,
+      framesOnly: true,
+      framesInPart,
+      cleanHtml2canvasCache: (part % 3 === 0) // كل 3 أجزاء
+    });
+
+    if (onProgress) onProgress({ phase: 'encoding_parts', part: part + 1, partCount });
+  }
+
+  // 4) concat
+  const list = partFiles.map(p => `file '${p}'`).join('\n');
+  ffmpeg.FS('writeFile', 'list.txt', new TextEncoder().encode(list));
+
+  await ffmpeg.run(
+    '-f', 'concat',
+    '-safe', '0',
+    '-i', 'list.txt',
+    '-fflags', '+genpts',
+    '-c', 'copy',
+    outputFile
+  );
+
+  // 5) final cleanup temp
+  cleanupWasmTemp({ ffmpeg, framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+
+  if (onProgress) onProgress({ phase: 'done', outputFile });
+
+  return { outputFile, effectiveDuration, totalFrames, fps };
+}
+
+D) MP4 → GIF (High Quality with palettegen/paletteuse)
+
+هذا أفضل مسار للـ GIF من MP4 النهائي (بدون مخاطر concat على GIF).
+
+async function renderGIFFromMP4({
+  ffmpeg,
+  inputMp4 = 'output.mp4',
+  outputGif = 'output.gif',
+  fps = 15,            // GIF عادة 10–15 أفضل
+  scaleWidth = 540,    // قلل الحجم للـ GIF (مثلاً 540 أو 720)
+  dither = 'sierra2_4a'
+}) {
+  // palette
+  await ffmpeg.run(
+    '-i', inputMp4,
+    '-vf', `fps=${fps},scale=${scaleWidth}:-1:flags=lanczos,palettegen`,
+    'palette.png'
+  );
+
+  // apply palette
+  await ffmpeg.run(
+    '-i', inputMp4,
+    '-i', 'palette.png',
+    '-lavfi', `fps=${fps},scale=${scaleWidth}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=${dither}`,
+    outputGif
+  );
+
+  safeUnlink(ffmpeg, 'palette.png');
+  return outputGif;
+}
+
+E) “أداء أعلى” اختيارات سريعة
+
+fps=24 غالبًا كافي ويريّح الجهاز كثير
+
+preset=veryfast أفضل توازن
+
+framesPerPart = fps*4 ممتاز، وإذا فيه OOM على أجهزة ضعيفة: fps*3
+
+إذا النصوص تبدو “مضغوطة”: خفف JPEG إلى 0.9 أو خفف CRF إلى 16–18
+
+F) مثال استخدام سريع
+// Abort support (اختياري)
+const ac = new AbortController();
+
+const mp4Info = await renderMP4Deterministic({
+  ffmpeg: this.ffmpeg,
+  previewElement,
+  iframeDoc: previewElement.contentDocument,
+  canvas,
+  ctx,
+  width: 1080,
+  height: 1920,
+  duration: 15,
+  fps: 30,
+  crf: 18,
+  preset: 'veryfast',
+  seekAnimationsToTime: this.seekAnimationsToTime.bind(this),
+  getCaptureTarget: this.getCaptureTarget.bind(this),
+  lockTargetSize: this.lockTargetSize.bind(this),
+  abortSignal: ac.signal,
+  onProgress: (p) => console.log(p)
+});
+
+// لو تبغى GIF
+const gifFile = await renderGIFFromMP4({
+  ffmpeg: this.ffmpeg,
+  inputMp4: mp4Info.outputFile,
+  outputGif: 'output.gif',
+  fps: 15,
+  scaleWidth: 540
+});

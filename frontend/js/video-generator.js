@@ -1,59 +1,3 @@
-function pad5(n) { 
-    return String(n).padStart(5, '0'); 
-}
-
-function safeUnlink(ffmpeg, path) {
-    try { ffmpeg.FS('unlink', path); } catch {}
-}
-
-function safeReaddir(ffmpeg, dir = '/') {
-    try { return ffmpeg.FS('readdir', dir); } catch { return []; }
-}
-
-function cleanupWasmTemp({
-    ffmpeg,
-    framesInPart = 0,
-    framesOnly = false,
-    cleanParts = true,
-    cleanList = true,
-    cleanHtml2canvasCache = false
-} = {}) {
-    if (!ffmpeg) return;
-
-    if (framesInPart > 0) {
-        for (let i = 1; i <= framesInPart; i++) {
-            safeUnlink(ffmpeg, `frame_${pad5(i)}.jpg`);
-        }
-        if (framesOnly) {
-            if (cleanHtml2canvasCache && window.html2canvas) {
-                try { window.html2canvas.cache = {}; } catch {}
-            }
-            return;
-        }
-    }
-
-    const files = safeReaddir(ffmpeg, '/');
-    for (const f of files) {
-        if (f.startsWith('frame_') && f.endsWith('.jpg')) safeUnlink(ffmpeg, f);
-        if (cleanParts && f.startsWith('part_') && f.endsWith('.mp4')) safeUnlink(ffmpeg, f);
-    }
-
-    if (cleanList) safeUnlink(ffmpeg, 'list.txt');
-
-    if (cleanHtml2canvasCache && window.html2canvas) {
-        try { window.html2canvas.cache = {}; } catch {}
-    }
-}
-
-async function nextFrame() {
-    await new Promise(r => requestAnimationFrame(() => r()));
-}
-
-async function settleAfterSeek() {
-    await nextFrame();
-    await nextFrame();
-}
-
 class VideoGeneratorWASM {
     constructor() {
         this.ffmpeg = null;
@@ -61,6 +5,61 @@ class VideoGeneratorWASM {
         this.progressCallback = null;
         this.maxDuration = 20;
         this.abortController = null;
+    }
+
+    pad5(n) { 
+        return String(n).padStart(5, '0'); 
+    }
+
+    safeUnlink(path) {
+        try { this.ffmpeg.FS('unlink', path); } catch {}
+    }
+
+    safeReaddir(dir = '/') {
+        try { return this.ffmpeg.FS('readdir', dir); } catch { return []; }
+    }
+
+    cleanupWasmTemp({ 
+        framesInPart = 0, 
+        framesOnly = false, 
+        cleanParts = true, 
+        cleanList = true, 
+        cleanHtml2canvasCache = false 
+    } = {}) {
+        if (!this.ffmpeg) return;
+
+        if (framesInPart > 0) {
+            for (let i = 1; i <= framesInPart; i++) {
+                this.safeUnlink(`frame_${this.pad5(i)}.jpg`);
+            }
+            if (framesOnly) {
+                if (cleanHtml2canvasCache && window.html2canvas) {
+                    try { window.html2canvas.cache = {}; } catch {}
+                }
+                return;
+            }
+        }
+
+        const files = this.safeReaddir('/');
+        for (const f of files) {
+            if (f.startsWith('frame_') && f.endsWith('.jpg')) this.safeUnlink(f);
+            if (cleanParts && f.startsWith('part_') && f.endsWith('.mp4')) this.safeUnlink(f);
+        }
+
+        if (cleanList) this.safeUnlink('list.txt');
+
+        if (cleanHtml2canvasCache && window.html2canvas) {
+            try { window.html2canvas.cache = {}; } catch {}
+        }
+    }
+
+    async _rAF() { 
+        await new Promise(r => requestAnimationFrame(() => r())); 
+    }
+
+    async settleAfterSeek() { 
+        await this._rAF(); 
+        await this._rAF(); 
     }
 
     checkBrowserSupport() {
@@ -136,7 +135,7 @@ class VideoGeneratorWASM {
                 log: false,
                 progress: ({ ratio }) => {
                     const percent = Math.round(ratio * 100);
-                    this.updateProgress('encoding', `تشفير الفيديو... ${percent}%`, 70 + percent * 0.25);
+                    this.updateProgress('encoding', `تشفير الفيديو... ${percent}%`, 55 + percent * 0.2);
                 }
             });
             
@@ -219,23 +218,18 @@ class VideoGeneratorWASM {
         }
     }
 
-    async captureFrameJpegBytes(previewElement, canvas, ctx, width, height, frameIndex) {
+    async captureFrameBytes(previewElement, canvas, ctx, width, height, frameIndex) {
         const html2canvas = window.html2canvas;
-        if (!html2canvas) {
-            throw new Error('html2canvas not loaded');
-        }
 
         let targetElement;
-        if (previewElement.tagName === 'IFRAME') {
-            try {
-                const iframeDoc = previewElement.contentDocument || previewElement.contentWindow.document;
-                targetElement = this.getCaptureTarget(iframeDoc);
+        let iframeDoc = null;
 
-                if (frameIndex === 0) {
-                    this.lockTargetSize(targetElement, width, height);
-                }
-            } catch (e) {
-                targetElement = previewElement;
+        if (previewElement.tagName === 'IFRAME') {
+            iframeDoc = previewElement.contentDocument;
+            targetElement = this.getCaptureTarget(iframeDoc);
+
+            if (frameIndex === 0) {
+                this.lockTargetSize(targetElement, width, height);
             }
         } else {
             targetElement = previewElement;
@@ -264,176 +258,159 @@ class VideoGeneratorWASM {
         return bytes;
     }
 
-    async renderMP4({
+    async renderMP4Deterministic({
         previewElement,
+        canvas,
+        ctx,
         width,
         height,
         duration,
         fps = 30,
         crf = 18,
         preset = 'veryfast',
-        quality = 'medium'
+        maxDuration = 20,
+        secondsPerPart = 4,
+        outputFile = 'final.mp4'
     }) {
-        const effectiveDuration = Math.min(duration, this.maxDuration);
-        if (duration > this.maxDuration) {
-            this.updateProgress('warning', `تم تقليل المدة إلى ${this.maxDuration} ثانية لتجنب مشاكل الذاكرة`, 20);
-            await this.delay(1000);
-        }
+        try {
+            this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
 
-        const totalFrames = Math.floor(fps * effectiveDuration);
-        const framesPerPart = fps * 4;
-        const partCount = Math.ceil(totalFrames / framesPerPart);
-        const partFiles = [];
+            const iframeDoc = previewElement.tagName === 'IFRAME' ? previewElement.contentDocument : null;
+            const iframeWin = previewElement.tagName === 'IFRAME' ? previewElement.contentWindow : null;
 
-        if (quality === 'high') crf = 18;
-        else if (quality === 'low') crf = 28;
-        else crf = 23;
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-
-        let iframeDoc = null;
-        let iframeWin = null;
-        if (previewElement.tagName === 'IFRAME') {
-            try {
-                iframeDoc = previewElement.contentDocument || previewElement.contentWindow.document;
-                iframeWin = previewElement.contentWindow;
-            } catch (e) {
-                console.warn('Cannot access iframe document');
-            }
-        }
-
-        if (iframeWin && iframeWin.setCaptureMode) {
-            iframeWin.setCaptureMode(true);
-        }
-
-        if (iframeWin && iframeWin.__capturePrepare) {
-            this.updateProgress('capturing', 'انتظار تحميل الخطوط والصور...', 22);
-            await iframeWin.__capturePrepare();
-        }
-
-        cleanupWasmTemp({ 
-            ffmpeg: this.ffmpeg, 
-            framesOnly: false, 
-            cleanParts: true, 
-            cleanList: true, 
-            cleanHtml2canvasCache: true 
-        });
-
-        this.updateProgress('capturing', 'بدء التقاط الإطارات...', 25);
-
-        for (let part = 0; part < partCount; part++) {
-            if (this.abortController?.signal?.aborted) {
-                throw new Error('تم إلغاء العملية');
+            if (iframeWin && iframeWin.setCaptureMode) {
+                iframeWin.setCaptureMode(true);
             }
 
-            const start = part * framesPerPart;
-            const end = Math.min(start + framesPerPart, totalFrames);
-            const framesInPart = end - start;
-
-            for (let local = 0; local < framesInPart; local++) {
-                if (this.abortController?.signal?.aborted) {
-                    throw new Error('تم إلغاء العملية');
-                }
-
-                const i = start + local;
-                const currentTime = i / fps;
-
-                if (iframeDoc) {
-                    this.seekAnimationsToTime(iframeDoc, currentTime);
-                }
-                await settleAfterSeek();
-
-                if (iframeWin && iframeWin.__capturePrepare) {
-                    await iframeWin.__capturePrepare();
-                }
-
-                try {
-                    const bytes = await this.captureFrameJpegBytes(
-                        previewElement, canvas, ctx, width, height, i
-                    );
-                    const fileName = `frame_${pad5(local + 1)}.jpg`;
-                    this.ffmpeg.FS('writeFile', fileName, bytes);
-                } catch (error) {
-                    console.error(`Frame ${i} capture error:`, error);
-                    ctx.fillStyle = '#1a1a2e';
-                    ctx.fillRect(0, 0, width, height);
-                    const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
-                    const bytes = new Uint8Array(await blob.arrayBuffer());
-                    this.ffmpeg.FS('writeFile', `frame_${pad5(local + 1)}.jpg`, bytes);
-                }
-
-                const captureProgress = 25 + ((i + 1) / totalFrames) * 35;
-                if (i % 3 === 0) {
-                    this.updateProgress('capturing', `التقاط الإطار ${i + 1}/${totalFrames}`, captureProgress);
-                }
+            if (iframeWin && iframeWin.__capturePrepare) {
+                this.updateProgress('capturing', 'انتظار تحميل الخطوط والصور...', 3);
+                await iframeWin.__capturePrepare();
             }
 
-            this.updateProgress('encoding', `تشفير الجزء ${part + 1}/${partCount}...`, 60 + (part / partCount) * 15);
+            const effectiveDuration = Math.min(duration, maxDuration);
+            const totalFrames = Math.floor(fps * effectiveDuration);
 
-            const partName = `part_${pad5(part + 1)}.mp4`;
-            await this.ffmpeg.run(
-                '-framerate', String(fps),
-                '-i', 'frame_%05d.jpg',
-                '-c:v', 'libx264',
-                '-pix_fmt', 'yuv420p',
-                '-crf', String(crf),
-                '-preset', preset,
-                '-tune', 'animation',
-                '-movflags', '+faststart',
-                partName
-            );
-            partFiles.push(partName);
+            const framesPerPart = Math.max(1, Math.floor(fps * secondsPerPart));
+            const partCount = Math.ceil(totalFrames / framesPerPart);
+            const partFiles = [];
 
-            cleanupWasmTemp({
-                ffmpeg: this.ffmpeg,
-                framesOnly: true,
-                framesInPart,
-                cleanHtml2canvasCache: (part % 3 === 0)
-            });
+            this.updateProgress('capturing', 'بدء الالتقاط...', 5);
+
+            for (let part = 0; part < partCount; part++) {
+                const start = part * framesPerPart;
+                const end = Math.min(start + framesPerPart, totalFrames);
+                const framesInPart = end - start;
+
+                for (let local = 0; local < framesInPart; local++) {
+                    const i = start + local;
+                    const currentTime = i / fps;
+
+                    if (iframeDoc) this.seekAnimationsToTime(iframeDoc, currentTime);
+
+                    await this.settleAfterSeek();
+
+                    if (iframeWin && iframeWin.__capturePrepare) {
+                        await iframeWin.__capturePrepare();
+                    }
+
+                    try {
+                        const bytes = await this.captureFrameBytes(previewElement, canvas, ctx, width, height, i);
+                        const frameName = `frame_${this.pad5(local + 1)}.jpg`;
+                        this.ffmpeg.FS('writeFile', frameName, bytes);
+                    } catch (error) {
+                        console.error(`Frame ${i} capture error:`, error);
+                        ctx.fillStyle = '#1a1a2e';
+                        ctx.fillRect(0, 0, width, height);
+                        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+                        const bytes = new Uint8Array(await blob.arrayBuffer());
+                        this.ffmpeg.FS('writeFile', `frame_${this.pad5(local + 1)}.jpg`, bytes);
+                    }
+
+                    const captureRatio = (i + 1) / totalFrames;
+                    if (i % 3 === 0) {
+                        this.updateProgress('capturing', `التقاط الإطارات... ${Math.round(captureRatio * 100)}%`, 5 + captureRatio * 45);
+                    }
+                }
+
+                const partName = `part_${this.pad5(part + 1)}.mp4`;
+                this.updateProgress('encoding', `تشفير الجزء ${part + 1}/${partCount}...`, 55);
+
+                await this.ffmpeg.run(
+                    '-framerate', String(fps),
+                    '-i', 'frame_%05d.jpg',
+                    '-c:v', 'libx264',
+                    '-pix_fmt', 'yuv420p',
+                    '-crf', String(crf),
+                    '-preset', preset,
+                    '-tune', 'animation',
+                    '-movflags', '+faststart',
+                    partName
+                );
+
+                partFiles.push(partName);
+
+                this.cleanupWasmTemp({
+                    framesOnly: true,
+                    framesInPart,
+                    cleanHtml2canvasCache: (part % 3 === 0)
+                });
+
+                this.updateProgress('encoding', `تم تشفير الجزء ${part + 1}/${partCount}`, 55 + ((part + 1) / partCount) * 20);
+            }
+
+            if (iframeWin && iframeWin.setCaptureMode) {
+                iframeWin.setCaptureMode(false);
+            }
+
+            if (iframeDoc) {
+                this.resumeAnimations(iframeDoc);
+            }
+
+            const listTxt = partFiles.map(p => `file '${p}'`).join('\n');
+            this.ffmpeg.FS('writeFile', 'list.txt', new TextEncoder().encode(listTxt));
+
+            this.updateProgress('encoding', 'دمج الأجزاء...', 78);
+
+            if (partFiles.length === 1) {
+                const singlePartData = this.ffmpeg.FS('readFile', partFiles[0]);
+                this.ffmpeg.FS('writeFile', outputFile, singlePartData);
+                this.safeUnlink(partFiles[0]);
+            } else {
+                await this.ffmpeg.run(
+                    '-f', 'concat',
+                    '-safe', '0',
+                    '-i', 'list.txt',
+                    '-fflags', '+genpts',
+                    '-c', 'copy',
+                    outputFile
+                );
+            }
+
+            const data = this.ffmpeg.FS('readFile', outputFile);
+
+            this.safeUnlink(outputFile);
+            this.safeUnlink('list.txt');
+            for (const p of partFiles) this.safeUnlink(p);
+            this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+
+            const blob = new Blob([data.buffer], { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+
+            this.updateProgress('done', 'تم إنشاء الفيديو بنجاح ✅', 100);
+
+            return {
+                success: true,
+                blob,
+                url,
+                fileName: `video_${Date.now()}.mp4`,
+                format: 'MP4',
+                size: (blob.size / (1024 * 1024)).toFixed(2) + ' MB'
+            };
+        } catch (err) {
+            this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+            console.error('renderMP4Deterministic error:', err);
+            return { success: false, error: String(err?.message || err) };
         }
-
-        if (iframeWin && iframeWin.setCaptureMode) {
-            iframeWin.setCaptureMode(false);
-        }
-
-        if (iframeDoc) {
-            this.resumeAnimations(iframeDoc);
-        }
-
-        this.updateProgress('encoding', 'دمج الأجزاء...', 78);
-
-        const outputFile = 'output.mp4';
-
-        if (partFiles.length === 1) {
-            const singlePartData = this.ffmpeg.FS('readFile', partFiles[0]);
-            this.ffmpeg.FS('writeFile', outputFile, singlePartData);
-            safeUnlink(this.ffmpeg, partFiles[0]);
-        } else {
-            const list = partFiles.map(p => `file '${p}'`).join('\n');
-            this.ffmpeg.FS('writeFile', 'list.txt', new TextEncoder().encode(list));
-
-            await this.ffmpeg.run(
-                '-f', 'concat',
-                '-safe', '0',
-                '-i', 'list.txt',
-                '-fflags', '+genpts',
-                '-c', 'copy',
-                outputFile
-            );
-
-            cleanupWasmTemp({ 
-                ffmpeg: this.ffmpeg, 
-                framesOnly: false, 
-                cleanParts: true, 
-                cleanList: true, 
-                cleanHtml2canvasCache: true 
-            });
-        }
-
-        return { outputFile, effectiveDuration, totalFrames, fps };
     }
 
     async renderGIFFromMP4(inputMp4 = 'output.mp4', outputGif = 'output.gif', fps = 15, scaleWidth = 540) {
@@ -452,8 +429,7 @@ class VideoGeneratorWASM {
             outputGif
         );
 
-        safeUnlink(this.ffmpeg, 'palette.png');
-        safeUnlink(this.ffmpeg, inputMp4);
+        this.safeUnlink('palette.png');
 
         return outputGif;
     }
@@ -471,59 +447,69 @@ class VideoGeneratorWASM {
             throw new Error('عنصر المعاينة غير موجود');
         }
 
-        this.abortController = new AbortController();
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        let crf = 18;
+        if (quality === 'high') crf = 18;
+        else if (quality === 'low') crf = 28;
+        else crf = 23;
 
         try {
-            const mp4Result = await this.renderMP4({
+            const mp4Result = await this.renderMP4Deterministic({
                 previewElement,
+                canvas,
+                ctx,
                 width,
                 height,
                 duration,
                 fps,
-                quality
+                crf,
+                preset: 'veryfast',
+                maxDuration: this.maxDuration,
+                secondsPerPart: 4,
+                outputFile: 'output.mp4'
             });
 
-            let finalFile = mp4Result.outputFile;
-            let mimeType = 'video/mp4';
-            let extension = 'mp4';
-
-            if (format === 'GIF') {
-                const gifFps = Math.min(fps, 15);
-                const gifWidth = width > 720 ? 540 : width;
-                finalFile = await this.renderGIFFromMP4(mp4Result.outputFile, 'output.gif', gifFps, gifWidth);
-                mimeType = 'image/gif';
-                extension = 'gif';
+            if (!mp4Result.success) {
+                throw new Error(mp4Result.error || 'فشل إنشاء الفيديو');
             }
 
-            this.updateProgress('encoding', 'جاري استخراج الملف...', 95);
+            if (format === 'GIF') {
+                this.ffmpeg.FS('writeFile', 'output.mp4', await mp4Result.blob.arrayBuffer().then(buf => new Uint8Array(buf)));
+                
+                const gifFps = Math.min(fps, 15);
+                const gifWidth = width > 720 ? 540 : width;
+                const gifFile = await this.renderGIFFromMP4('output.mp4', 'output.gif', gifFps, gifWidth);
+                
+                const gifData = this.ffmpeg.FS('readFile', gifFile);
+                this.safeUnlink(gifFile);
+                this.safeUnlink('output.mp4');
 
-            const data = this.ffmpeg.FS('readFile', finalFile);
-            safeUnlink(this.ffmpeg, finalFile);
+                const gifBlob = new Blob([gifData.buffer], { type: 'image/gif' });
+                const gifUrl = URL.createObjectURL(gifBlob);
 
-            const blob = new Blob([data.buffer], { type: mimeType });
-            const url = URL.createObjectURL(blob);
+                URL.revokeObjectURL(mp4Result.url);
 
-            this.updateProgress('complete', 'اكتمل التحويل بنجاح!', 100);
+                this.updateProgress('done', 'تم إنشاء GIF بنجاح ✅', 100);
 
-            return {
-                success: true,
-                blob,
-                url,
-                fileName: `video_${Date.now()}.${extension}`,
-                format: format || 'MP4',
-                size: (blob.size / (1024 * 1024)).toFixed(2) + ' MB'
-            };
+                return {
+                    success: true,
+                    blob: gifBlob,
+                    url: gifUrl,
+                    fileName: `video_${Date.now()}.gif`,
+                    format: 'GIF',
+                    size: (gifBlob.size / (1024 * 1024)).toFixed(2) + ' MB'
+                };
+            }
+
+            return mp4Result;
 
         } catch (error) {
             console.error('Video generation error:', error);
-
-            cleanupWasmTemp({ 
-                ffmpeg: this.ffmpeg, 
-                framesOnly: false, 
-                cleanParts: true, 
-                cleanList: true, 
-                cleanHtml2canvasCache: true 
-            });
+            this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
 
             if (error.message && (error.message.includes('OOM') || error.message.includes('memory'))) {
                 throw new Error('نفدت الذاكرة - جرب مدة أقصر أو دقة أقل');
@@ -543,13 +529,7 @@ class VideoGeneratorWASM {
     }
 
     clearFrames() {
-        cleanupWasmTemp({ 
-            ffmpeg: this.ffmpeg, 
-            framesOnly: false, 
-            cleanParts: true, 
-            cleanList: true, 
-            cleanHtml2canvasCache: true 
-        });
+        this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
     }
 }
 

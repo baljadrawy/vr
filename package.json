@@ -21,6 +21,8 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
+    "@ffmpeg/core": "^0.11.0",
+    "@ffmpeg/ffmpeg": "^0.11.6",
     "express": "^4.18.2",
     "gsap": "^3.14.2",
     "lottie-web": "^5.13.0",

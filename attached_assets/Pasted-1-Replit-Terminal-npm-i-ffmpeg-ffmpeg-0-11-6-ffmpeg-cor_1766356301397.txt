@@ -1,0 +1,89 @@
+1) ثبّت الحزم (بنفس الإصدار)
+
+في شِل Replit/Terminal:
+
+npm i @ffmpeg/ffmpeg@0.11.6 @ffmpeg/core@0.11.6
+
+
+اخترت 0.11.6 لأنها مستقرة وشائعة. المهم: نفس الإصدار للاثنين.
+
+2) انسخ ملفات الـ dist إلى public/libs/ffmpeg
+
+أنشئ المجلد:
+
+mkdir -p public/libs/ffmpeg
+
+
+انسخ الملفات (المسارات غالبًا تكون كذا):
+
+cp node_modules/@ffmpeg/ffmpeg/dist/ffmpeg.min.js public/libs/ffmpeg/
+cp node_modules/@ffmpeg/core/dist/ffmpeg-core.js public/libs/ffmpeg/
+cp node_modules/@ffmpeg/core/dist/ffmpeg-core.wasm public/libs/ffmpeg/
+cp node_modules/@ffmpeg/core/dist/ffmpeg-core.worker.js public/libs/ffmpeg/
+
+
+تحقق أنها موجودة:
+
+ls -lah public/libs/ffmpeg
+
+
+لازم تشوف الأربعة:
+
+ffmpeg.min.js
+
+ffmpeg-core.js
+
+ffmpeg-core.wasm
+
+ffmpeg-core.worker.js
+
+مهم جدًا: لا تخلط أي ملف قديم عندك. إذا كان عندك نفس الملفات سابقًا، احذفها قبل النسخ:
+
+rm -f public/libs/ffmpeg/ffmpeg*.js public/libs/ffmpeg/*.wasm
+
+3) حدّث index.html (تحميل wrapper محلي)
+
+بدّل أي CDN إلى المحلي:
+
+<script src="/libs/ffmpeg/ffmpeg.min.js"></script>
+
+4) حدّث init في video-generator.js (corePath محلي)
+this.ffmpeg = window.FFmpeg.createFFmpeg({
+  corePath: window.location.origin + '/libs/ffmpeg/ffmpeg-core.js',
+  log: false,
+  progress: ({ ratio }) => {
+    const percent = Math.round(ratio * 100);
+    this.updateProgress('encoding', `تشفير الفيديو... ${percent}%`, 70 + percent * 0.25);
+  }
+});
+
+await this.ffmpeg.load();
+
+// اختبار قاتل للمشاكل
+await this.ffmpeg.run('-version');
+console.log('✅ ffmpeg -version OK');
+
+
+طالما ffmpeg-core.js/wasm/worker في نفس المجلد، نسخة 0.11.x عادة تلقائيًا تجيب البقية من نفس المسار.
+
+5) “قتل الكاش” (ضروري على Replit)
+
+بعد ما ترفع/تبدل wasm/worker:
+
+Ctrl+Shift+R
+
+أو افتح نافذة Private
+
+ولو تبغى ضمان 100%: غيّر اسم المجلد مرة واحدة (اختياري):
+
+public/libs/ffmpeg-v011/
+
+وعدّل المسارات في script src و corePath
+
+6) تأكيد أنك خرجت من multi-thread
+
+افتح public/libs/ffmpeg/ffmpeg-core.worker.js وابحث:
+
+إذا لقيت pthread أو SharedArrayBuffer → هذا مو single-thread (لازم تستبدله)
+
+في 0.11.x المفروض ما تشوفها أساسًا.

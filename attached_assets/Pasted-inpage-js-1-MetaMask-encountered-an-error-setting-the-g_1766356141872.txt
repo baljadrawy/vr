@@ -1,0 +1,46 @@
+inpage.js:1 MetaMask encountered an error setting the global Ethereum provider - this is likely due to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot set property ethereum of #<Window> which has only a getter
+    at a (inpage.js:1:146243)
+    at r.initializeProvider (inpage.js:1:146014)
+    at Object.<anonymous> (inpage.js:1:2308)
+    at Object.<anonymous> (inpage.js:1:6316)
+    at 2.../../shared/modules/provider-injection (inpage.js:1:6329)
+    at i (inpage.js:1:254)
+    at e (inpage.js:1:412)
+    at inpage.js:1:429
+a @ inpage.js:1Understand this error
+api-wasm.js:29 🎬 جاري تحميل محرك الفيديو في الخلفية...
+api-wasm.js:243 ✅ WASM API Manager جاهز!
+app.js:380 تم تحميل الكود المحفوظ
+app.js:487 ✅ التطبيق جاهز!
+/favicon.ico:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+preview.js:67 ✅ GSAP loaded for preview
+preview.js:72 ✅ Twemoji loaded for preview
+preview.js:77 ✅ Lottie loaded for preview
+video-generator.js:152 ✅ FFmpeg.wasm loaded successfully
+d0dd064a-0c37-450b-b837-b91f033e57c4:1 worker.js onmessage() captured an uncaught exception: RuntimeError: function signature mismatch
+threadPrintErr @ d0dd064a-0c37-450b-b837-b91f033e57c4:1Understand this error
+d0dd064a-0c37-450b-b837-b91f033e57c4:1 worker.js onmessage() captured an uncaught exception: RuntimeError: function signature mismatch
+threadPrintErr @ d0dd064a-0c37-450b-b837-b91f033e57c4:1Understand this error
+d0dd064a-0c37-450b-b837-b91f033e57c4:1 RuntimeError: function signature mismatch
+    at 2637cef8-412e-417e-b6ab-e76a84f32d63:0x8e7baa
+    at f.dynCall (286a9033-3bc3-4bd8-adde-70269a30ffa6:28:148)
+    at onmessage (d0dd064a-0c37-450b-b837-b91f033e57c4:1:1767)
+threadPrintErr @ d0dd064a-0c37-450b-b837-b91f033e57c4:1Understand this error
+d0dd064a-0c37-450b-b837-b91f033e57c4:1 RuntimeError: function signature mismatch
+    at 2637cef8-412e-417e-b6ab-e76a84f32d63:0x8e7baa
+    at f.dynCall (286a9033-3bc3-4bd8-adde-70269a30ffa6:28:148)
+    at onmessage (d0dd064a-0c37-450b-b837-b91f033e57c4:1:1767)
+threadPrintErr @ d0dd064a-0c37-450b-b837-b91f033e57c4:1Understand this error
+d0dd064a-0c37-450b-b837-b91f033e57c4:1 Uncaught RuntimeError: function signature mismatch
+    at 2637cef8-412e-417e-b6ab-e76a84f32d63:0x8e7baa
+    at f.dynCall (286a9033-3bc3-4bd8-adde-70269a30ffa6:28:148)
+    at onmessage (d0dd064a-0c37-450b-b837-b91f033e57c4:1:1767)Understand this error
+lockdown-install.js:1 SES_UNCAUGHT_EXCEPTION: null
+(anonymous) @ lockdown-install.js:1Understand this error
+lockdown-install.js:1 SES_UNCAUGHT_EXCEPTION: null
+(anonymous) @ lockdown-install.js:1Understand this error
+d0dd064a-0c37-450b-b837-b91f033e57c4:1 Uncaught RuntimeError: function signature mismatch
+    at 2637cef8-412e-417e-b6ab-e76a84f32d63:0x8e7baa
+    at f.dynCall (286a9033-3bc3-4bd8-adde-70269a30ffa6:28:148)
+    at onmessage (d0dd064a-0c37-450b-b837-b91f033e57c4:1:1767)Understand this error
+587806a5-6da5-4a4e-b538-47930af55d10:1 Not allowed to load local resource: blob:https://969803ff-968b-4431-b132-a042bc6c4db0-00-1xd02p3nks7dm.sisko.replit.dev/587806a5-6da5-4a4e-b538-47930af55d10

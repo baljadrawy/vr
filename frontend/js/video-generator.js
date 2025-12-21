@@ -27,7 +27,7 @@ class VideoGeneratorWASM {
         try {
             this.updateProgress('loading', 'جاري تحميل محرك الفيديو...', 5);
             
-            await this.loadScript('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js');
+            await this.loadScript('/libs/ffmpeg/ffmpeg.min.js');
             
             this.updateProgress('loading', 'جاري تهيئة FFmpeg...', 10);
             
@@ -35,7 +35,10 @@ class VideoGeneratorWASM {
                 throw new Error('FFmpeg not loaded properly');
             }
             
+            const corePath = window.location.origin + '/libs/ffmpeg/ffmpeg-core.js';
+            
             this.ffmpeg = window.FFmpeg.createFFmpeg({
+                corePath: corePath,
                 log: true,
                 progress: ({ ratio }) => {
                     const percent = Math.round(ratio * 100);
@@ -43,7 +46,7 @@ class VideoGeneratorWASM {
                 }
             });
             
-            this.updateProgress('loading', 'جاري تحميل ملفات FFmpeg (~25MB)...', 15);
+            this.updateProgress('loading', 'جاري تحميل ملفات FFmpeg (~24MB)...', 15);
             
             await this.ffmpeg.load();
             

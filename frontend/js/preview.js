@@ -190,6 +190,36 @@ class PreviewManager {
             window.registerLottie = function(anim) {
                 window.__lottieAnimations.push(anim);
             };
+            
+            // Hook قبل الالتقاط - انتظار الخطوط والصور
+            window.__capturePrepare = async function() {
+                // 1) انتظر تحميل الخطوط
+                if (document.fonts && document.fonts.ready) {
+                    await document.fonts.ready;
+                }
+                
+                // 2) انتظر الصور (Twemoji يحول الإيموجي إلى <img>)
+                var imgs = Array.from(document.images || []);
+                await Promise.all(imgs.map(function(img) {
+                    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+                    return new Promise(function(res) {
+                        img.onload = function() { res(); };
+                        img.onerror = function() { res(); };
+                    });
+                }));
+                
+                // 3) أعطِ المتصفح فريمين لتثبيت الـ layout
+                await new Promise(function(r) {
+                    requestAnimationFrame(function() {
+                        requestAnimationFrame(r);
+                    });
+                });
+            };
+            
+            // تفعيل/تعطيل وضع الالتقاط (يزيل backdrop-filter)
+            window.setCaptureMode = function(on) {
+                document.documentElement.classList.toggle('capture-mode', !!on);
+            };
         })();
         `;
 
@@ -214,6 +244,14 @@ class PreviewManager {
             margin: 0 0.05em 0 0.1em;
             vertical-align: -0.1em;
             display: inline-block;
+        }
+        /* وضع الالتقاط - تعطيل backdrop-filter لتوافق html2canvas */
+        html.capture-mode *,
+        html.capture-mode .card,
+        html.capture-mode [class*="glass"],
+        html.capture-mode [class*="blur"] {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
         ${css}
     </style>

@@ -88,20 +88,33 @@ class VideoGeneratorWASM {
         this.frames = [];
         
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = width * 2;
+        canvas.height = height * 2;
         const ctx = canvas.getContext('2d');
         
-        this.updateProgress('capturing', 'بدء التقاط الإطارات...', 25);
+        this.updateProgress('capturing', 'تحضير الالتقاط...', 22);
         
         let iframeDoc = null;
+        let iframeWin = null;
         if (previewElement.tagName === 'IFRAME') {
             try {
                 iframeDoc = previewElement.contentDocument || previewElement.contentWindow.document;
+                iframeWin = previewElement.contentWindow;
             } catch (e) {
                 console.warn('Cannot access iframe document');
             }
         }
+        
+        if (iframeWin && iframeWin.setCaptureMode) {
+            iframeWin.setCaptureMode(true);
+        }
+        
+        if (iframeWin && iframeWin.__capturePrepare) {
+            this.updateProgress('capturing', 'انتظار تحميل الخطوط والصور...', 24);
+            await iframeWin.__capturePrepare();
+        }
+        
+        this.updateProgress('capturing', 'بدء التقاط الإطارات...', 25);
         
         for (let i = 0; i < totalFrames; i++) {
             const currentTime = i / fps;
@@ -110,7 +123,9 @@ class VideoGeneratorWASM {
                 this.seekAnimationsToTime(iframeDoc, currentTime);
             }
             
-            await this.delay(50);
+            if (iframeWin && iframeWin.__capturePrepare) {
+                await iframeWin.__capturePrepare();
+            }
             
             await this.captureFrame(previewElement, canvas, ctx, width, height, i, totalFrames);
             
@@ -118,6 +133,10 @@ class VideoGeneratorWASM {
             if (i % 5 === 0) {
                 this.updateProgress('capturing', `التقاط الإطار ${i + 1}/${totalFrames}`, progress);
             }
+        }
+        
+        if (iframeWin && iframeWin.setCaptureMode) {
+            iframeWin.setCaptureMode(false);
         }
         
         if (iframeDoc) {
@@ -164,14 +183,14 @@ class VideoGeneratorWASM {
             const captureCanvas = await html2canvas(targetElement, {
                 width: width,
                 height: height,
-                scale: 1,
+                scale: 2,
                 useCORS: true,
-                allowTaint: true,
+                allowTaint: false,
                 backgroundColor: '#000000',
                 logging: false
             });
             
-            ctx.drawImage(captureCanvas, 0, 0, width, height);
+            ctx.drawImage(captureCanvas, 0, 0, width * 2, height * 2);
             
             const dataUrl = canvas.toDataURL('image/png');
             this.frames.push(dataUrl);

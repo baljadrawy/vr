@@ -1,0 +1,99 @@
+التعديل 1: “Hook” داخلي قبل الالتقاط (Fonts + Twemoji + Layout)
+
+أضف دالة global جاهزة، تستدعيها قبل كل لقطة أثناء التسجيل:
+
+window.__capturePrepare = async function() {
+  // 1) انتظر تحميل الخطوط
+  if (document.fonts && document.fonts.ready) {
+    await document.fonts.ready;
+  }
+
+  // 2) انتظر الصور (Twemoji يحول الإيموجي إلى <img>)
+  const imgs = Array.from(document.images || []);
+  await Promise.all(imgs.map(img => {
+    if (img.complete && img.naturalWidth > 0) return;
+    return new Promise(res => {
+      img.onload = () => res();
+      img.onerror = () => res();
+    });
+  }));
+
+  // 3) أعطِ المتصفح فريمين لتثبيت الـ layout
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+};
+
+
+ليش هذا مهم؟
+لأنك الآن تتحكم بالوقت بدقة، لكن لو الخط/الإيموجي “لسه ما ثبت” قبل screenshot بيطلع الكيرننج/الارتفاع غلط.
+
+✅ التعديل 2: “Capture Mode” يوقف CSS اللي يخرب html2canvas
+
+في القوالب اللي فيها كروت و blur، html2canvas أحيانًا يطلع النص/الكروت بشكل أغرب.
+
+CSS (في القالب)
+html.capture-mode .card{
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+JS (وقت التسجيل فقط)
+function setCaptureMode(on){
+  document.documentElement.classList.toggle("capture-mode", !!on);
+}
+
+
+قبل التسجيل: setCaptureMode(true)
+بعد التسجيل: setCaptureMode(false)
+
+✅ التعديل 3: html2canvas بإعدادات “Retina ثابتة”
+
+أنت عندك في الباكند سابقًا deviceScaleFactor:2
+هنا لازم تعادلها:
+
+async function captureFrame(targetEl){
+  return await html2canvas(targetEl, {
+    backgroundColor: null,
+    useCORS: true,
+    allowTaint: false,
+    scale: 2,                 // ✅ ثابت
+    logging: false
+  });
+}
+
+
+لو عندك عنصر محدد داخل iframe (مثل .reel-container) التقطه بدل document.body عشان ما يتأثر UI خارجي.
+
+✅ الربط مع نظام Virtual Time عندك (النقطة الأهم)
+
+في Loop التسجيل (مثال 30fps):
+
+async function recordFrames({ durationMs, fps, targetEl }) {
+  window.__isRecording = true;
+  setCaptureMode(true);
+
+  // تأكد أول مرة فقط
+  await window.__capturePrepare();
+
+  const frameMs = Math.round(1000 / fps);
+  const totalFrames = Math.ceil(durationMs / frameMs);
+
+  for (let f = 0; f < totalFrames; f++) {
+    const t = f * frameMs;
+
+    // 1) حرّك الزمن
+    window.seekToTime(t);
+
+    // 2) اترك الأنيميشن يرسم الحالة (بسبب registerAnimation)
+    // غالبًا seekToTime عندك يستدعي callbacks، بس نضمن استقرار DOM:
+    await window.__capturePrepare();
+
+    // 3) التقط
+    const canvas = await captureFrame(targetEl);
+
+    // 4) مرّرها لـ FFmpeg.wasm (حسب طريقتك: PNG/RAW)
+    // addFrame(canvas)  <-- عندك في نظامك
+  }
+
+  setCaptureMode(false);
+  window.__isRecording = false;
+}

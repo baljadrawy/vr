@@ -189,9 +189,32 @@ class PreviewManager {
             };
 
             this.preview.src = url;
+            
+            // تحديث أيضاً الـ iframe المخفي للتصوير
+            this.updateCaptureFrame(fullHTML);
         } catch (error) {
             console.error('Preview Error:', error);
             this.hideLoading();
+        }
+    }
+    
+    updateCaptureFrame(fullHTML) {
+        const captureFrame = document.getElementById('preview-frame');
+        if (captureFrame) {
+            const resolution = this.resolutionSelect.value;
+            const resolutions = {
+                'HD_Vertical': { width: 1080, height: 1920 },
+                'Square': { width: 1080, height: 1080 },
+                'HD_Horizontal': { width: 1920, height: 1080 }
+            };
+            const res = resolutions[resolution] || resolutions['HD_Vertical'];
+            
+            captureFrame.style.width = res.width + 'px';
+            captureFrame.style.height = res.height + 'px';
+            
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            captureFrame.src = url;
         }
     }
 

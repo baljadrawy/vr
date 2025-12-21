@@ -6,40 +6,50 @@ class VideoGeneratorWASM {
         this.progressCallback = null;
     }
 
+    async loadScript(url) {
+        return new Promise((resolve, reject) => {
+            if (document.querySelector(`script[src="${url}"]`)) {
+                resolve();
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = url;
+            script.crossOrigin = 'anonymous';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
     async init() {
         if (this.isLoaded) return true;
 
         try {
             this.updateProgress('loading', 'جاري تحميل محرك الفيديو...', 5);
             
-            const { FFmpeg } = await import('https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js');
-            const { fetchFile } = await import('https://unpkg.com/@ffmpeg/util@0.12.1/dist/esm/index.js');
+            await this.loadScript('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js');
             
-            this.ffmpeg = new FFmpeg();
-            this.fetchFile = fetchFile;
+            this.updateProgress('loading', 'جاري تهيئة FFmpeg...', 10);
             
-            this.ffmpeg.on('log', ({ message }) => {
-                console.log('[FFmpeg]', message);
+            if (!window.FFmpeg || !window.FFmpeg.createFFmpeg) {
+                throw new Error('FFmpeg not loaded properly');
+            }
+            
+            this.ffmpeg = window.FFmpeg.createFFmpeg({
+                log: true,
+                progress: ({ ratio }) => {
+                    const percent = Math.round(ratio * 100);
+                    this.updateProgress('encoding', `تشفير الفيديو... ${percent}%`, 50 + percent * 0.4);
+                }
             });
             
-            this.ffmpeg.on('progress', ({ progress }) => {
-                const percent = Math.round(progress * 100);
-                this.updateProgress('encoding', `تشفير الفيديو... ${percent}%`, 50 + percent * 0.4);
-            });
+            this.updateProgress('loading', 'جاري تحميل ملفات FFmpeg (~25MB)...', 15);
             
-            this.updateProgress('loading', 'جاري تحميل ملفات FFmpeg...', 10);
-            
-            const coreURL = '/libs/ffmpeg/ffmpeg-core.js';
-            const wasmURL = '/libs/ffmpeg/ffmpeg-core.wasm';
-            
-            await this.ffmpeg.load({
-                coreURL: coreURL,
-                wasmURL: wasmURL,
-            });
+            await this.ffmpeg.load();
             
             this.isLoaded = true;
             this.updateProgress('ready', 'محرك الفيديو جاهز!', 20);
-            console.log('✅ FFmpeg.wasm loaded successfully (local)');
+            console.log('✅ FFmpeg.wasm loaded successfully');
             return true;
             
         } catch (error) {
@@ -150,6 +160,7 @@ class VideoGeneratorWASM {
         }
 
         const { fps, format, quality } = config;
+        const { fetchFile } = window.FFmpeg;
         
         this.updateProgress('processing', 'تحضير الإطارات للتشفير...', 52);
         
@@ -163,7 +174,7 @@ class VideoGeneratorWASM {
             }
             
             const fileName = `frame${String(i).padStart(5, '0')}.png`;
-            await this.ffmpeg.writeFile(fileName, bytes);
+            this.ffmpeg.FS('writeFile', fileName, bytes);
             
             if (i % 10 === 0) {
                 const progress = 52 + (i / this.frames.length) * 10;
@@ -175,47 +186,40 @@ class VideoGeneratorWASM {
         
         const outputFile = format === 'GIF' ? 'output.gif' : 'output.mp4';
         
-        const qualitySettings = {
-            'high': '-crf 18',
-            'medium': '-crf 23',
-            'low': '-crf 28',
-            'fast': '-crf 23'
-        };
-        const crf = qualitySettings[quality] || qualitySettings['medium'];
-        
         try {
             if (format === 'GIF') {
-                await this.ffmpeg.exec([
+                await this.ffmpeg.run(
                     '-framerate', String(fps),
                     '-i', 'frame%05d.png',
                     '-vf', 'split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
                     '-loop', '0',
                     outputFile
-                ]);
+                );
             } else {
-                await this.ffmpeg.exec([
+                const crf = quality === 'high' ? '18' : quality === 'low' ? '28' : '23';
+                await this.ffmpeg.run(
                     '-framerate', String(fps),
                     '-i', 'frame%05d.png',
                     '-c:v', 'libx264',
                     '-pix_fmt', 'yuv420p',
-                    ...crf.split(' '),
+                    '-crf', crf,
                     '-preset', 'fast',
                     outputFile
-                ]);
+                );
             }
             
             this.updateProgress('encoding', 'جاري استخراج الفيديو...', 95);
             
-            const data = await this.ffmpeg.readFile(outputFile);
+            const data = this.ffmpeg.FS('readFile', outputFile);
             
             for (let i = 0; i < this.frames.length; i++) {
                 const fileName = `frame${String(i).padStart(5, '0')}.png`;
                 try {
-                    await this.ffmpeg.deleteFile(fileName);
+                    this.ffmpeg.FS('unlink', fileName);
                 } catch (e) {}
             }
             try {
-                await this.ffmpeg.deleteFile(outputFile);
+                this.ffmpeg.FS('unlink', outputFile);
             } catch (e) {}
             
             const mimeType = format === 'GIF' ? 'image/gif' : 'video/mp4';

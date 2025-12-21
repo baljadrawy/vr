@@ -83,8 +83,6 @@ class APIManagerWASM {
                 resolution
             };
 
-            await this.videoGenerator.captureFrames(previewFrame, config);
-
             const result = await this.videoGenerator.generateVideo(config);
 
             if (result.success) {

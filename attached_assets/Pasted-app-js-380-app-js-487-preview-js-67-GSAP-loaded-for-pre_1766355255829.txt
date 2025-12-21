@@ -1,0 +1,271 @@
+app.js:380 تم تحميل الكود المحفوظ
+app.js:487 ✅ التطبيق جاهز!
+preview.js:67 ✅ GSAP loaded for preview
+preview.js:72 ✅ Twemoji loaded for preview
+preview.js:77 ✅ Lottie loaded for preview
+video-generator.js:155 ✅ FFmpeg.wasm loaded successfully
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+(index):1 Access to image at 'https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg' from origin 'https://rndrha.replit.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+1f381.svg:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1 worker.js onmessage() captured an uncaught exception: RuntimeError: function signature mismatch
+threadPrintErr @ 1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1Understand this error
+1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1 worker.js onmessage() captured an uncaught exception: RuntimeError: function signature mismatch
+threadPrintErr @ 1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1Understand this error
+1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1 RuntimeError: function signature mismatch
+    at 041a9aad-003e-41dd-ab67-14ba168c51c0:0x8e7baa
+    at f.dynCall (0f6c102b-8b74-4246-89a5-f8191f4bc34d:28:148)
+    at onmessage (1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1:1767)
+threadPrintErr @ 1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1Understand this error
+1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1 RuntimeError: function signature mismatch
+    at 041a9aad-003e-41dd-ab67-14ba168c51c0:0x8e7baa
+    at f.dynCall (0f6c102b-8b74-4246-89a5-f8191f4bc34d:28:148)
+    at onmessage (1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1:1767)
+threadPrintErr @ 1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1Understand this error
+1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1 Uncaught RuntimeError: function signature mismatch
+    at 041a9aad-003e-41dd-ab67-14ba168c51c0:0x8e7baa
+    at f.dynCall (0f6c102b-8b74-4246-89a5-f8191f4bc34d:28:148)
+    at onmessage (1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1:1767)Understand this error
+lockdown-install.js:1 SES_UNCAUGHT_EXCEPTION: null
+(anonymous) @ lockdown-install.js:1Understand this error
+lockdown-install.js:1 SES_UNCAUGHT_EXCEPTION: null
+(anonymous) @ lockdown-install.js:1Understand this error
+1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1 Uncaught RuntimeError: function signature mismatch
+    at 041a9aad-003e-41dd-ab67-14ba168c51c0:0x8e7baa
+    at f.dynCall (0f6c102b-8b74-4246-89a5-f8191f4bc34d:28:148)
+    at onmessage (1ec66b3a-8b8f-4416-a8eb-9c07b59086f1:1:1767)Understand this error
+2e4540ce-5d0c-498d-824d-743e303399e9:1 Not allowed to load local resource: blob:https://rndrha.replit.app/2e4540ce-5d0c-498d-824d-743e303399e9Understand this error

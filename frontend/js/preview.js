@@ -280,11 +280,12 @@ class PreviewManager {
         } catch (error) {
             console.error('JavaScript Error:', error);
         }
-        // تحويل الإيموجي إلى SVG
+        // تحويل الإيموجي إلى SVG (jsDelivr يدعم CORS)
         if (typeof twemoji !== 'undefined') {
             twemoji.parse(document.body, {
                 folder: 'svg',
-                ext: '.svg'
+                ext: '.svg',
+                base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/'
             });
         }
     </script>

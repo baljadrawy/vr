@@ -1,0 +1,102 @@
+1) إصلاح Twemoji CORS (سريع ومباشر)
+
+في preview.js داخل الـ iframe نفّذ:
+
+twemoji.parse(document.body, {
+  folder: 'svg',
+  ext: '.svg',
+  base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/'
+});
+
+
+وتأكد أنك ما زلت تضيف crossorigin="anonymous" لأي <img> يتم إنشاؤه (إن وجد)، لكن غالبًا ما تحتاجه مع twemoji.parse.
+
+ملاحظة: الأفضل لاحقًا تستضيف twemoji محليًا لتجنب أي تغيّر بالـ CDN، لكن هذا الآن يكفي ويحل CORS غالبًا.
+
+2) التأكد من إصدارات FFmpeg فعليًا (في ثانيتين من داخل المتصفح)
+
+أضف هذا مؤقتًا في app.js أو console (على نفس الدومين):
+
+async function peek(path, needle) {
+  const t = await (await fetch(path)).text();
+  const i = t.indexOf(needle);
+  return {
+    path,
+    found: i !== -1,
+    near: i !== -1 ? t.slice(Math.max(0, i - 60), i + 120) : t.slice(0, 200)
+  };
+}
+
+(async () => {
+  const files = [
+    '/libs/ffmpeg/ffmpeg.min.js',
+    '/libs/ffmpeg/ffmpeg-core.js',
+    '/libs/ffmpeg/ffmpeg-core.worker.js'
+  ];
+
+  const checks = [];
+  for (const f of files) {
+    // جرّب كلمات شائعة للإصدارات/البانر
+    checks.push(await peek(f, 'ffmpeg'));
+    checks.push(await peek(f, '0.'));       // كثير من الملفات فيها رقم إصدار
+    checks.push(await peek(f, 'createFFmpeg'));
+    checks.push(await peek(f, 'CORE'));
+  }
+  console.table(checks.filter(x => x.found));
+})();
+
+
+الهدف: تشوف هل نفس “الإصدار/البانر” ظاهر في الملفات الثلاثة/الأربعة أو واضح أنها من مصادر مختلفة.
+
+إذا طلع ffmpeg.min.js ما يذكر نفس الشيء الموجود في ffmpeg-core.js أو يظهر اختلاف واضح → هذا هو سبب الـ mismatch.
+
+3) إصلاح “function signature mismatch” (الحل المؤكد)
+الخيار A (الأفضل): استبدل الأربعة ملفات كـ “حزمة واحدة”
+
+لا تحاول تخلط. جيب ffmpeg.min.js + core الثلاثة من نفس الإصدار ونفس المصدر (نفس الريبو/الحزمة).
+
+احذف الأربعة الحاليين
+
+نزّلهم من نفس إصدار واحد
+
+ارفعهم إلى /libs/ffmpeg/
+
+Hard reload
+
+ليش؟ لأن ffmpeg.min.js (الـ wrapper) لازم يطابق الـ ABI/Exports المتوقع من ffmpeg-core.wasm والـ worker.
+
+الخيار B (سريع للتشخيص): جرّب Core من CDN بنفس النسخة
+
+مؤقتًا، بدل corePath إلى رابط معروف (بنفس الإصدار) للتأكد إن المشكلة تطابق نسخ:
+
+this.ffmpeg = window.FFmpeg.createFFmpeg({
+  corePath: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/ffmpeg-core.js',
+  log: true
+});
+
+
+إذا اشتغل مع CDN → تأكدنا 100% أن ملفاتك المحلية غير متطابقة (أو كاش قديم).
+
+بعد ما يشتغل، ترجع محلي لكن بنفس الملفات من نفس الإصدار.
+
+4) ملاحظة مهمة جدًا: Multi-thread vs SharedArrayBuffer
+
+بعض builds من ffmpeg-core تكون multi-thread وتحتاج:
+
+COOP/COEP headers (Cross-Origin Isolation)
+
+وإلا قد تطلع أخطاء غريبة (أحيانًا signature mismatch أو worker crashes)
+
+على Replit غالبًا ما تكون headers غير مفعلة افتراضيًا.
+فلو أنت جايب build “mt”، الأفضل تستخدم single-thread core (أو فعّل COOP/COEP).
+
+علامة أنك على mt: وجود كلام عن SharedArrayBuffer أو pthread داخل ffmpeg-core.js / worker.
+
+5) بعد إصلاح الاثنين: جملة اختبار سريعة
+
+قبل تدخل في التقاط الإطارات، جرّب encode بسيط داخل ffmpeg للتأكد أنه سليم:
+
+await this.ffmpeg.run('-version');
+
+
+إذا هذا رمى function signature mismatch → المشكلة ليست من pipeline ولا html2canvas، 100% من ملفات ffmpeg نفسها.

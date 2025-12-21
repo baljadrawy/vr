@@ -1,0 +1,90 @@
+واضح عندك مشكلتين منفصلتين في اللوق:
+
+1) خطأ CORS مع Twemoji (سبب تكرار: فشل تحميل الإيموجي)
+
+الطلب رايح لـ:
+
+https://twemoji.maxcdn.com/v/14.0.2/svg/1f381.svg
+
+وهذا الدومين معروف أنه “مش مناسب/متوقف/مشاكل CDN” وقد لا يرسل Access-Control-Allow-Origin، فيصير المتصفح يمنع تحميله من موقعك → الإيموجي ما ينرسم/أو يتسبب في tainted canvas أثناء html2canvas. 
+GitHub
++1
+
+الحل المحترف (الأفضل): غيّر مصدر Twemoji إلى jsDelivr (يدعم CORS عادة)
+
+استخدم مسار GitHub عبر jsDelivr بدل maxcdn:
+
+Base URL المقترح (v14.0.2):
+https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/ 
+jsDelivr
+
+مثال تعديل Twemoji في preview.js داخل الـ iframe
+
+إذا عندك twemoji.parse(...):
+
+// داخل iframe (preview.js)
+twemoji.parse(document.body, {
+  folder: 'svg',
+  ext: '.svg',
+  base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/'
+});
+
+
+لو عندك كود يركّب URL يدويًا (base+codepoint.svg)، خلي الـ base ينتهي بـ /assets/svg/.
+
+حل أقوى (مضمون 100%): استضافة الإيموجي محليًا
+
+نزّل مجلد assets/svg للمشروع
+
+قدمه من نفس الدومين: /assets/twemoji/svg/...
+
+هذا يلغي CORS تمامًا (أفضل لالتقاط الفيديو).
+
+2) RuntimeError: function signature mismatch (من FFmpeg.wasm)
+
+هذا الخطأ غالبًا يعني أن ملفات FFmpeg التي عندك غير متطابقة مع بعضها (نسخة ffmpeg-core.js لا تطابق ffmpeg-core.wasm أو ffmpeg-core.worker.js) أو أن المتصفح ما زال يقرأ ملف قديم من الكاش. وهو خطأ معروف في ffmpeg.wasm عند mismatch أو بعض builds/flags. 
+GitHub
++2
+GitHub
++2
+
+خطوات إصلاح سريعة ومضمونة
+
+تأكد أن الثلاثة ملفات من نفس الإصدار وبنفس المجلد:
+
+ffmpeg-core.js
+
+ffmpeg-core.wasm
+
+ffmpeg-core.worker.js (أو worker الملف المقابل لإصدارك)
+
+امسح الكاش (هذا مهم جدًا مع wasm):
+
+Hard Reload (Ctrl+Shift+R)
+
+أو افتح الموقع في نافذة Private للتأكد
+
+تأكد أن corePath صحيح ويؤدي لملف core.js الصحيح
+أنت الآن تستخدم:
+
+corePath: window.location.origin + '/libs/ffmpeg/ffmpeg-core.js'
+
+
+هذا ممتاز بشرط أن باقي الملفات بنفس المسار /libs/ffmpeg/.
+
+جرّب مؤقتًا إزالة/تغيير -preset لاختبار هل build عندك يتعطل معها (في بعض الإصدارات القديمة ظهر هذا تحديدًا). 
+GitHub
++1
+
+مثال اختبار:
+
+// احذف preset مؤقتًا أو خلّه 'ultrafast' فقط للاختبار
+
+
+إذا اختفى الخطأ → عندك build قديم/غير متوافق، والحل النهائي: استبدل مكتبة ffmpeg.wasm/الـ core build بواحدة أحدث ومتطابقة.
+
+3) “Not allowed to load local resource: blob:…”
+
+هذا يظهر عادةً لما شيء (iframe/سياسة sandbox/CSP أو إضافة متصفح) يحاول “فتح” blob كأنه resource خارجي في سياق ممنوع. غالبًا ليس سبب الجذر هنا—لكن بعد حل (CORS + signature mismatch) غالبًا يختفي.
+
+تأكد إن iframe عندك ليس عليه sandbox بدون allow-same-origin (إذا كنت تستخدم sandbox).

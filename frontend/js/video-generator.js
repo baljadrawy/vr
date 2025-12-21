@@ -128,10 +128,7 @@ class VideoGeneratorWASM {
                 throw new Error('FFmpeg not loaded properly');
             }
             
-            const corePath = window.location.origin + '/libs/ffmpeg/ffmpeg-core.js';
-            
             this.ffmpeg = window.FFmpeg.createFFmpeg({
-                corePath: corePath,
                 log: false,
                 progress: ({ ratio }) => {
                     const percent = Math.round(ratio * 100);

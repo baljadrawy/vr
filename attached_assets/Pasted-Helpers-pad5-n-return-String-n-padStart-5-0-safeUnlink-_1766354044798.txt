@@ -1,0 +1,235 @@
+Helpers (ضعها داخل نفس الملف/الكلاس)
+pad5(n) { return String(n).padStart(5, '0'); }
+
+safeUnlink(path) {
+  try { this.ffmpeg.FS('unlink', path); } catch {}
+}
+
+safeReaddir(dir = '/') {
+  try { return this.ffmpeg.FS('readdir', dir); } catch { return []; }
+}
+
+cleanupWasmTemp({ framesInPart = 0, framesOnly = false, cleanParts = true, cleanList = true, cleanHtml2canvasCache = false } = {}) {
+  if (!this.ffmpeg) return;
+
+  // fast delete known frames
+  if (framesInPart > 0) {
+    for (let i = 1; i <= framesInPart; i++) {
+      this.safeUnlink(`frame_${this.pad5(i)}.jpg`);
+    }
+    if (framesOnly) {
+      if (cleanHtml2canvasCache && window.html2canvas) {
+        try { window.html2canvas.cache = {}; } catch {}
+      }
+      return;
+    }
+  }
+
+  // sweep leftovers
+  const files = this.safeReaddir('/');
+  for (const f of files) {
+    if (f.startsWith('frame_') && f.endsWith('.jpg')) this.safeUnlink(f);
+    if (cleanParts && f.startsWith('part_') && f.endsWith('.mp4')) this.safeUnlink(f);
+  }
+
+  if (cleanList) this.safeUnlink('list.txt');
+
+  if (cleanHtml2canvasCache && window.html2canvas) {
+    try { window.html2canvas.cache = {}; } catch {}
+  }
+}
+
+async _rAF() { await new Promise(r => requestAnimationFrame(() => r())); }
+async settleAfterSeek() { await this._rAF(); await this._rAF(); }
+
+2) Capture: JPEG bytes (استبدل دالتك الحالية)
+async captureFrameBytes(previewElement, canvas, ctx, width, height, frameIndex) {
+  const html2canvas = window.html2canvas;
+
+  let targetElement;
+  let iframeDoc = null;
+
+  if (previewElement.tagName === 'IFRAME') {
+    iframeDoc = previewElement.contentDocument;
+    targetElement = this.getCaptureTarget(iframeDoc);
+
+    if (frameIndex === 0) {
+      this.lockTargetSize(targetElement, width, height);
+    }
+  } else {
+    targetElement = previewElement;
+  }
+
+  const captureCanvas = await html2canvas(targetElement, {
+    width,
+    height,
+    scale: 1,
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: null,
+    logging: false,
+    imageTimeout: 0
+  });
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.drawImage(captureCanvas, 0, 0, width, height);
+
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+
+  // تقليل تسريبات html2canvas
+  captureCanvas.width = 0;
+  captureCanvas.height = 0;
+
+  return bytes;
+}
+
+3) MP4 Pipeline كامل (Partial parts → concat → readFile → return)
+
+هذه الدالة هي اللي تستدعيها بدل منطق الـ batching القديم.
+
+async renderMP4Deterministic({
+  previewElement,
+  canvas,
+  ctx,
+  width,
+  height,
+  duration,
+  fps = 30,
+  crf = 18,
+  preset = 'veryfast',
+  maxDuration = 15,
+  secondsPerPart = 4,
+  outputFile = 'final.mp4'
+}) {
+  try {
+    // 0) تنظيف أي بقايا قديمة
+    this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+
+    const iframeDoc = previewElement.tagName === 'IFRAME' ? previewElement.contentDocument : null;
+
+    const effectiveDuration = Math.min(duration, maxDuration);
+    const totalFrames = Math.floor(fps * effectiveDuration);
+
+    const framesPerPart = Math.max(1, Math.floor(fps * secondsPerPart));
+    const partCount = Math.ceil(totalFrames / framesPerPart);
+    const partFiles = [];
+
+    this.updateProgress('capturing', 'بدء الالتقاط...', 5);
+
+    for (let part = 0; part < partCount; part++) {
+      const start = part * framesPerPart;
+      const end = Math.min(start + framesPerPart, totalFrames);
+      const framesInPart = end - start;
+
+      // 1) التقط + اكتب مباشرة (بدون تخزين أي arrays)
+      for (let local = 0; local < framesInPart; local++) {
+        const i = start + local;
+        const currentTime = i / fps;
+
+        if (iframeDoc) this.seekAnimationsToTime(iframeDoc, currentTime);
+
+        // تثبيت layout بعد seek
+        await this.settleAfterSeek();
+
+        const bytes = await this.captureFrameBytes(previewElement, canvas, ctx, width, height, i);
+        const frameName = `frame_${this.pad5(local + 1)}.jpg`;
+        this.ffmpeg.FS('writeFile', frameName, bytes);
+
+        // progress
+        const captureRatio = (i + 1) / totalFrames;
+        this.updateProgress('capturing', `التقاط الإطارات... ${Math.round(captureRatio * 100)}%`, 5 + captureRatio * 45);
+      }
+
+      // 2) شفّر جزء
+      const partName = `part_${this.pad5(part + 1)}.mp4`;
+      this.updateProgress('encoding', `تشفير الجزء ${part + 1}/${partCount}...`, 55);
+
+      await this.ffmpeg.run(
+        '-framerate', String(fps),
+        '-i', 'frame_%05d.jpg',
+        '-c:v', 'libx264',
+        '-pix_fmt', 'yuv420p',
+        '-crf', String(crf),
+        '-preset', preset,
+        '-tune', 'animation',
+        '-movflags', '+faststart',
+        partName
+      );
+
+      partFiles.push(partName);
+
+      // 3) احذف إطارات الجزء فوراً (RAM ثابت)
+      this.cleanupWasmTemp({
+        framesOnly: true,
+        framesInPart,
+        cleanHtml2canvasCache: (part % 3 === 0)
+      });
+
+      this.updateProgress('encoding', `تم تشفير الجزء ${part + 1}/${partCount}`, 55 + ((part + 1) / partCount) * 20);
+    }
+
+    // 4) concat نهائي (مع genpts لتفادي تقطيع timestamps)
+    const listTxt = partFiles.map(p => `file '${p}'`).join('\n');
+    this.ffmpeg.FS('writeFile', 'list.txt', new TextEncoder().encode(listTxt));
+
+    this.updateProgress('encoding', 'دمج الأجزاء...', 78);
+
+    await this.ffmpeg.run(
+      '-f', 'concat',
+      '-safe', '0',
+      '-i', 'list.txt',
+      '-fflags', '+genpts',
+      '-c', 'copy',
+      outputFile
+    );
+
+    // 5) اقرأ الملف النهائي
+    const data = this.ffmpeg.FS('readFile', outputFile);
+
+    // 6) تنظيف كل الـ temp
+    this.safeUnlink(outputFile);
+    this.safeUnlink('list.txt');
+    for (const p of partFiles) this.safeUnlink(p);
+    this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+
+    const blob = new Blob([data.buffer], { type: 'video/mp4' });
+    const url = URL.createObjectURL(blob);
+
+    this.updateProgress('done', 'تم إنشاء الفيديو بنجاح ✅', 100);
+
+    return {
+      success: true,
+      blob,
+      url,
+      fileName: `video_${Date.now()}.mp4`,
+      format: 'mp4',
+      size: (blob.size / (1024 * 1024)).toFixed(2) + ' MB'
+    };
+  } catch (err) {
+    // تنظيف عند الخطأ
+    this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+    return { success: false, error: String(err?.message || err) };
+  }
+}
+
+4) هل تحتاج تعديل على “التحميل في app.js”؟
+
+لا. كودك صحيح.
+بس ملاحظة صغيرة: لا تعمل URL.revokeObjectURL مباشرة إذا كان التحميل يحتاج وقت بسيط؛ خليها بعد setTimeout بسيط:
+
+a.click();
+setTimeout(() => URL.revokeObjectURL(result.url), 2000);
+
+
+(هذا يمنع حالات نادرة يكون فيها المتصفح ما بدأ التحميل بعد.)
+
+5) إعدادات أنصح بها الآن (مباشرة)
+
+fps = 24 إذا تبغى أمان أعلى للذاكرة
+
+secondsPerPart = 4 ممتاز
+
+jpeg quality = 0.85 ممتاز
+
+crf = 18 جودة ممتازة (جرّب 20 لو تبغى ملف أصغر)

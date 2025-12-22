@@ -379,6 +379,170 @@ requestAnimationFrame(animate);`
     50% { transform: translate(-200px, 0) scale(1.2); }
 }`,
         js: ''
+    },
+
+    scenes: {
+        name: 'مشاهد متعددة (Reels)',
+        html: `<div class="reel" data-capture-root>
+  <!-- Scene 1 -->
+  <div class="scene active">
+    <div class="gift">✨</div>
+    <div class="big">الهدايا صارت أسهل!</div>
+    <div class="sub">بدون حيرة… وبدون تكرار</div>
+  </div>
+
+  <!-- Scene 2 -->
+  <div class="scene">
+    <div class="big">الكل يسألك:</div>
+    <div class="sub">"وش تحب؟ وش نجيب لك؟"</div>
+  </div>
+
+  <!-- Scene 3 -->
+  <div class="scene">
+    <div class="brand">Gjafa</div>
+    <div class="sub">قائمة أمنياتك في رابط واحد</div>
+    <div class="sub">شاركها مع العائلة والأصدقاء 🎁</div>
+  </div>
+
+  <!-- Scene 4 -->
+  <div class="scene">
+    <div class="step">أضف الأشياء اللي تتمناها ✅</div>
+    <div class="step">رتّبها حسب الأولوية ⭐</div>
+    <div class="step">شارك الرابط بسهولة 🔗</div>
+  </div>
+
+  <!-- Scene 5 -->
+  <div class="scene">
+    <div class="cta">خلك واضح… وخلك سعيد بالهدية</div>
+    <div class="site">gjafa.com</div>
+  </div>
+</div>`,
+        css: `.reel {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    font-family: 'Noto Sans Arabic', sans-serif;
+    direction: rtl;
+    overflow: hidden;
+}
+
+.scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.scene.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.gift {
+    font-size: 120px;
+    margin-bottom: 30px;
+    animation: bounce 1s ease infinite;
+}
+
+.big {
+    font-size: 72px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 20px;
+    text-shadow: 0 0 30px rgba(255,255,255,0.3);
+}
+
+.sub {
+    font-size: 42px;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 15px;
+}
+
+.brand {
+    font-size: 96px;
+    font-weight: bold;
+    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 30px;
+}
+
+.step {
+    font-size: 48px;
+    color: #fff;
+    margin: 20px 0;
+    padding: 15px 30px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+}
+
+.cta {
+    font-size: 54px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 40px;
+}
+
+.site {
+    font-size: 64px;
+    font-weight: bold;
+    color: #667eea;
+    padding: 20px 50px;
+    border: 4px solid #667eea;
+    border-radius: 20px;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}`,
+        js: `const scenes = document.querySelectorAll('.scene');
+const durations = [2800, 2800, 3300, 3800, 2300]; // = 15s total
+
+// حساب نقاط بداية كل مشهد
+const startTimes = [];
+let total = 0;
+durations.forEach(d => {
+    startTimes.push(total);
+    total += d;
+});
+
+// دالة إظهار المشهد حسب الوقت
+function showSceneAtTime(timeMs) {
+    let currentScene = 0;
+    for (let i = startTimes.length - 1; i >= 0; i--) {
+        if (timeMs >= startTimes[i]) {
+            currentScene = i;
+            break;
+        }
+    }
+    scenes.forEach((s, idx) => s.classList.toggle('active', idx === currentScene));
+}
+
+// تسجيل للتزامن مع التقاط الفيديو
+if (window.registerAnimation) {
+    window.registerAnimation(showSceneAtTime);
+}
+
+// للمعاينة العادية
+let i = 0;
+function play() {
+    if (window.__isRecording) return;
+    scenes.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    setTimeout(() => {
+        i = (i + 1) % scenes.length;
+        play();
+    }, durations[i]);
+}
+play();`
     }
 };
 

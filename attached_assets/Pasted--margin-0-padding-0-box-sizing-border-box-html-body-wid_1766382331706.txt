@@ -1,0 +1,160 @@
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family: Segoe UI, Tahoma, sans-serif;
+
+  /* تحسين شكل الخط */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.tiktok{
+  position:relative;
+  width:100%;
+  height:100%;
+  color:#fff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 55%, #3b2cff 100%);
+}
+
+/* Progress */
+.progress{
+  position:absolute; bottom:0; left:0; right:0;
+  height:8px;
+  background:rgba(255,255,255,.18);
+}
+.progress span{
+  display:block; height:100%; width:0%;
+  background:#fff;
+}
+
+/* Scene */
+.scene{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12% 8% 14%;
+  transform: scale(.98);
+}
+.scene.active{
+  opacity:1;
+  transform: scale(1);
+  transition: opacity .35s ease, transform .35s ease;
+}
+
+/* Content */
+.content{
+  width:100%;
+  max-width: 30ch;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  text-align:center;
+}
+
+/* Headlines (icon + text) */
+.headline{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+
+  font-size: clamp(2.1rem, 5.6vw, 3.3rem);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-shadow: 0 10px 30px rgba(0,0,0,.28);
+
+  opacity:0;
+  transform: translateY(16px);
+}
+.headline.small{
+  font-size: clamp(1.9rem, 5.0vw, 3.0rem);
+}
+
+/* Sub line */
+.subline{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  font-size: clamp(1.45rem, 3.8vw, 2.15rem);
+  font-weight: 800;
+  line-height: 1.15;
+  opacity:0;
+  transform: translateY(16px);
+  text-shadow: 0 10px 30px rgba(0,0,0,.22);
+}
+
+/* Cards */
+.cards{ max-width: 32ch; gap:14px; }
+.card{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+
+  padding: .9em 1em;
+  border-radius: 18px;
+  background: rgba(255,255,255,.18);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.22);
+
+  font-size: clamp(1.5rem, 4.2vw, 2.1rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-shadow: 0 6px 20px rgba(0,0,0,.25);
+
+  opacity:0;
+  transform: translateY(18px);
+}
+.card .txt{ display:inline-block; }
+
+/* CTA */
+.cta{
+  margin-top: 8px;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 1000;
+  padding: .35em .9em;
+  border-radius: 18px;
+  background: rgba(255,255,255,.18);
+  border: 2px solid rgba(255,255,255,.22);
+
+  opacity:0;
+  transform: translateY(16px);
+}
+
+/* Icons: خلي لها عرض ثابت عشان المحاذاة تصير perfect */
+.ico{
+  width: 1.15em;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Twemoji */
+img.emoji{
+  height: 1em;
+  width: 1em;
+  vertical-align: -0.1em;
+  display: inline-block;
+}
+
+/* Animations */
+@keyframes popIn{ to{opacity:1; transform: translateY(0);} }
+
+.scene.active .headline{ animation: popIn .45s ease forwards; }
+.scene.active .subline{ animation: popIn .45s ease .12s forwards; }
+.scene.active .cta{ animation: popIn .45s ease .22s forwards; }
+
+.scene.active .card:nth-child(1){ animation: popIn .45s ease .05s forwards; }
+.scene.active .card:nth-child(2){ animation: popIn .45s ease .22s forwards; }
+.scene.active .card:nth-child(3){ animation: popIn .45s ease .39s forwards; }

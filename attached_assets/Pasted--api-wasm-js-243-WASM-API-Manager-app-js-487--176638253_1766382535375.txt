@@ -1,0 +1,54 @@
+🎬 جاري تحميل محرك الفيديو في الخلفية...
+api-wasm.js:243 ✅ WASM API Manager جاهز!
+app.js:487 ✅ التطبيق جاهز!
+preview.js:67 ✅ GSAP loaded for preview
+preview.js:72 ✅ Twemoji loaded for preview
+preview.js:77 ✅ Lottie loaded for preview
+ContentScript.js:7 onPaste started
+ContentScript.js:7 onPaste completed
+ContentScript.js:6 onChange started
+ContentScript.js:6 onChange completed
+ContentScript.js:7 onPaste started
+ContentScript.js:7 onPaste completed
+ContentScript.js:6 onChange started
+ContentScript.js:6 onChange completed
+ContentScript.js:7 onPaste started
+ContentScript.js:7 onPaste completed
+ContentScript.js:6 onChange started
+ContentScript.js:6 onChange completed
+(index):1 Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+(index):1 Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+(index):1 Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+d8754ba6-8cf8-4683-ac06-69c1f4395abd:1 Not allowed to load local resource: blob:https://rndrha.replit.app/d8754ba6-8cf8-4683-ac06-69c1f4395abdUnderstand this error
+video-generator.js:162 ❌ Failed to load FFmpeg: RuntimeError: abort(Assertion failed: Cannot call unknown function proxy_main, make sure it is exported). Build with -s ASSERTIONS=1 for more info.
+    at n (e382bd74-b88b-49a9-b163-6c3cc071e16f:22:397)
+    at assert (e382bd74-b88b-49a9-b163-6c3cc071e16f:15:443)
+    at Aa (e382bd74-b88b-49a9-b163-6c3cc071e16f:16:31)
+    at e.cwrap (e382bd74-b88b-49a9-b163-6c3cc071e16f:186:108)
+    at ffmpeg.min.js:1:10353
+    at u (ffmpeg.min.js:1:14048)
+    at Generator._invoke (ffmpeg.min.js:1:13836)
+    at Generator.next (ffmpeg.min.js:1:14473)
+    at o (ffmpeg.min.js:1:6011)
+    at c (ffmpeg.min.js:1:6214)
+init @ video-generator.js:162Understand this error
+api-wasm.js:104 Error: Error: فشل تحميل محرك الفيديو
+    at APIManagerWASM.handleConvert (api-wasm.js:64:23)
+handleConvert @ api-wasm.js:104Understand this error
+video-generator.js:162 ❌ Failed to load FFmpeg: RuntimeError: abort(Assertion failed: Cannot call unknown function proxy_main, make sure it is exported). Build with -s ASSERTIONS=1 for more info.
+    at n (e382bd74-b88b-49a9-b163-6c3cc071e16f:22:397)
+    at assert (e382bd74-b88b-49a9-b163-6c3cc071e16f:15:443)
+    at Aa (e382bd74-b88b-49a9-b163-6c3cc071e16f:16:31)
+    at e.cwrap (e382bd74-b88b-49a9-b163-6c3cc071e16f:186:108)
+    at ffmpeg.min.js:1:10353
+    at u (ffmpeg.min.js:1:14048)
+    at Generator._invoke (ffmpeg.min.js:1:13836)
+    at Generator.next (ffmpeg.min.js:1:14473)
+    at o (ffmpeg.min.js:1:6011)
+    at c (ffmpeg.min.js:1:6214)
+init @ video-generator.js:162
+await in init
+handleConvert @ api-wasm.js:62
+(anonymous) @ api-wasm.js:14Understand this error
+api-wasm.js:104 Error: Error: فشل تحميل محرك الفيديو
+    at APIManagerWASM.handleConvert (api-wasm.js:64:23)

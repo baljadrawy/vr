@@ -7,8 +7,6 @@ const PORT = process.env.PORT || 5000;
 
 app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-    res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     
     if (req.path.endsWith('.wasm')) {

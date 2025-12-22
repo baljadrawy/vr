@@ -108,9 +108,9 @@ class VideoGeneratorWASM {
             
             this.updateProgress('loading', 'جاري تهيئة FFmpeg...', 10);
             
-            if (!window.FFmpeg?.FFmpeg) throw new Error('FFmpeg not loaded');
+            if (!window.FFmpegWASM?.FFmpeg) throw new Error('FFmpeg not loaded');
             
-            this.ffmpeg = new window.FFmpeg.FFmpeg();
+            this.ffmpeg = new window.FFmpegWASM.FFmpeg();
             
             this.ffmpeg.on('log', ({ message }) => console.log('[FFmpeg]', message));
             this.ffmpeg.on('progress', ({ progress }) => {

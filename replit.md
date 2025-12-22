@@ -3,7 +3,7 @@
 ## نظرة عامة | Overview
 تطبيق ويب بواجهة عربية يحوّل أكواد HTML/CSS/JavaScript إلى فيديوهات (MP4) أو صور متحركة (GIF) عالية الجودة. مثالي لإنشاء محتوى للسوشيال ميديا مثل Reels و TikTok و Stories.
 
-**النسخة 2.0 - WASM Edition:** كل معالجة الفيديو تتم في المتصفح باستخدام FFmpeg.wasm!
+**النسخة 2.2 - FFmpeg 0.12:** كل معالجة الفيديو تتم في المتصفح باستخدام FFmpeg.wasm 0.12 (single-thread)!
 
 ---
 
@@ -133,6 +133,13 @@ node server.js
 ---
 
 ## التحديثات الأخيرة | Recent Changes
+
+### ديسمبر 2025 - v2.2 (FFmpeg 0.12.x)
+- **تحديث FFmpeg.wasm**: من 0.11.x إلى 0.12.10
+- **Single-Thread Mode**: لا يحتاج SharedArrayBuffer
+- **API جديد**: `FFmpeg` class + `exec()` + `writeFile()`/`readFile()`
+- **توافقية أعلى**: يعمل على جميع المتصفحات بدون COOP/COEP
+- **إصلاح المعاينة**: `height: 100%` للـ html/body
 
 ### ديسمبر 2025 - v2.1 (Memory Optimized)
 - **حل مشكلة OOM**: معالجة الإطارات على دفعات (4 ثواني لكل دفعة)

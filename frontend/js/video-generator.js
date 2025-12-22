@@ -1,3 +1,4 @@
+// محرك توليد الفيديو - نسخة محسّنة ✅
 class VideoGeneratorWASM {
     constructor() {
         this.ffmpeg = null;
@@ -7,9 +8,7 @@ class VideoGeneratorWASM {
         this.abortController = null;
     }
 
-    pad5(n) { 
-        return String(n).padStart(5, '0'); 
-    }
+    pad5(n) { return String(n).padStart(5, '0'); }
 
     async safeUnlink(path) {
         try { await this.ffmpeg.deleteFile(path); } catch {}
@@ -61,26 +60,17 @@ class VideoGeneratorWASM {
     }
 
     async settleAfterSeek() { 
-        await this._rAF(); 
-        await this._rAF(); 
+        await this._rAF();
+        await this._rAF();
+        await this._rAF();
+        await new Promise(r => setTimeout(r, 50));
     }
 
     checkBrowserSupport() {
         const issues = [];
-        
-        if (typeof WebAssembly === 'undefined') {
-            issues.push('WebAssembly غير مدعوم في هذا المتصفح');
-        }
-        
-        const isSecureContext = window.isSecureContext;
-        if (!isSecureContext) {
-            issues.push('يجب فتح الموقع عبر HTTPS');
-        }
-        
-        return {
-            supported: issues.length === 0,
-            issues: issues
-        };
+        if (typeof WebAssembly === 'undefined') issues.push('WebAssembly غير مدعوم');
+        if (!window.isSecureContext) issues.push('يجب فتح الموقع عبر HTTPS');
+        return { supported: issues.length === 0, issues };
     }
 
     async loadScript(url) {
@@ -104,73 +94,51 @@ class VideoGeneratorWASM {
         try {
             const support = this.checkBrowserSupport();
             if (!support.supported) {
-                const errorMsg = support.issues.join('\n');
-                console.error('❌ Browser not supported:', errorMsg);
-                this.updateProgress('error', errorMsg, 0);
+                console.error('❌ Browser not supported:', support.issues);
+                this.updateProgress('error', support.issues.join('\n'), 0);
                 return false;
             }
             
             this.updateProgress('loading', 'جاري تحميل محرك الفيديو...', 5);
             
-            const loadTimeout = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('انتهى الوقت - تحقق من اتصال الإنترنت')), 60000)
-            );
-            
             await Promise.race([
                 this.loadScript('/libs/ffmpeg/ffmpeg.min.js'),
-                loadTimeout
+                new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), 60000))
             ]);
             
             this.updateProgress('loading', 'جاري تهيئة FFmpeg...', 10);
             
-            if (!window.FFmpeg || !window.FFmpeg.FFmpeg) {
-                throw new Error('FFmpeg not loaded properly');
-            }
+            if (!window.FFmpeg?.FFmpeg) throw new Error('FFmpeg not loaded');
             
             this.ffmpeg = new window.FFmpeg.FFmpeg();
             
-            this.ffmpeg.on('log', ({ message }) => {
-                console.log('[FFmpeg]', message);
-            });
-            
+            this.ffmpeg.on('log', ({ message }) => console.log('[FFmpeg]', message));
             this.ffmpeg.on('progress', ({ progress }) => {
                 const percent = Math.round(progress * 100);
-                this.updateProgress('encoding', `تشفير الفيديو... ${percent}%`, 55 + percent * 0.2);
+                this.updateProgress('encoding', `تشفير... ${percent}%`, 55 + percent * 0.2);
             });
             
-            this.updateProgress('loading', 'جاري تحميل ملفات FFmpeg (~32MB)...', 15);
+            this.updateProgress('loading', 'جاري تحميل ملفات FFmpeg...', 15);
             
             const baseURL = window.location.origin + '/libs/ffmpeg';
-            
-            const ffmpegLoadTimeout = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('فشل تحميل FFmpeg - حاول مرة أخرى')), 120000)
-            );
-            
             await Promise.race([
                 this.ffmpeg.load({
                     coreURL: `${baseURL}/ffmpeg-core.js`,
                     wasmURL: `${baseURL}/ffmpeg-core.wasm`,
                 }),
-                ffmpegLoadTimeout
+                new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), 120000))
             ]);
             
             await this.ffmpeg.exec(['-version']);
-            console.log('✅ ffmpeg -version OK');
             
             this.isLoaded = true;
             this.updateProgress('ready', 'محرك الفيديو جاهز!', 20);
-            console.log('✅ FFmpeg.wasm 0.12 loaded successfully');
+            console.log('✅ FFmpeg.wasm loaded');
             return true;
             
         } catch (error) {
             console.error('❌ Failed to load FFmpeg:', error);
-            let userMessage = error.message;
-            
-            if (error.message.includes('network') || error.message.includes('fetch')) {
-                userMessage = 'فشل الاتصال - تحقق من الإنترنت وحاول مجدداً';
-            }
-            
-            this.updateProgress('error', userMessage, 0);
+            this.updateProgress('error', error.message, 0);
             return false;
         }
     }
@@ -212,25 +180,28 @@ class VideoGeneratorWASM {
 
     seekAnimationsToTime(doc, timeInSeconds) {
         const timeMs = timeInSeconds * 1000;
-        if (doc.defaultView && doc.defaultView.seekToTime) {
+        if (doc.defaultView?.seekToTime) {
             doc.defaultView.seekToTime(timeMs);
         }
     }
 
     resumeAnimations(doc) {
-        if (doc.defaultView && doc.defaultView.resumeAnimations) {
+        if (doc.defaultView?.resumeAnimations) {
             doc.defaultView.resumeAnimations();
         }
     }
 
     async captureFrameBytes(previewElement, canvas, ctx, width, height, frameIndex) {
         const html2canvas = window.html2canvas;
+        if (!html2canvas) throw new Error('html2canvas not loaded');
 
         let targetElement;
         let iframeDoc = null;
 
         if (previewElement.tagName === 'IFRAME') {
             iframeDoc = previewElement.contentDocument;
+            if (!iframeDoc) throw new Error('Cannot access iframe content');
+            
             targetElement = this.getCaptureTarget(iframeDoc);
 
             if (frameIndex === 0) {
@@ -240,27 +211,45 @@ class VideoGeneratorWASM {
             targetElement = previewElement;
         }
 
-        const captureCanvas = await html2canvas(targetElement, {
-            width,
-            height,
-            scale: 1,
-            useCORS: true,
-            allowTaint: false,
-            backgroundColor: null,
-            logging: false,
-            imageTimeout: 0
-        });
+        try {
+            const captureCanvas = await html2canvas(targetElement, {
+                width,
+                height,
+                scale: 1,
+                useCORS: true,
+                allowTaint: false,
+                backgroundColor: '#000000',
+                logging: false,
+                imageTimeout: 0,
+                removeContainer: true,
+                windowWidth: width,
+                windowHeight: height
+            });
 
-        ctx.clearRect(0, 0, width, height);
-        ctx.drawImage(captureCanvas, 0, 0, width, height);
+            ctx.clearRect(0, 0, width, height);
+            ctx.drawImage(captureCanvas, 0, 0, width, height);
 
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
-        const bytes = new Uint8Array(await blob.arrayBuffer());
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.90));
+            const bytes = new Uint8Array(await blob.arrayBuffer());
 
-        captureCanvas.width = 0;
-        captureCanvas.height = 0;
+            captureCanvas.width = 0;
+            captureCanvas.height = 0;
 
-        return bytes;
+            return bytes;
+            
+        } catch (captureError) {
+            console.warn(`Frame ${frameIndex} capture fallback:`, captureError);
+            
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Frame ${frameIndex}`, width / 2, height / 2);
+            
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.90));
+            return new Uint8Array(await blob.arrayBuffer());
+        }
     }
 
     async renderMP4Deterministic({
@@ -278,23 +267,28 @@ class VideoGeneratorWASM {
         outputFile = 'final.mp4'
     }) {
         try {
-            await this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+            await this.cleanupWasmTemp({ 
+                framesOnly: false, 
+                cleanParts: true, 
+                cleanList: true, 
+                cleanHtml2canvasCache: true 
+            });
 
             const iframeDoc = previewElement.tagName === 'IFRAME' ? previewElement.contentDocument : null;
             const iframeWin = previewElement.tagName === 'IFRAME' ? previewElement.contentWindow : null;
 
-            if (iframeWin && iframeWin.setCaptureMode) {
+            if (iframeWin?.setCaptureMode) {
                 iframeWin.setCaptureMode(true);
+                await new Promise(r => setTimeout(r, 100));
             }
 
-            if (iframeWin && iframeWin.__capturePrepare) {
-                this.updateProgress('capturing', 'انتظار تحميل الخطوط والصور...', 3);
+            if (iframeWin?.__capturePrepare) {
+                this.updateProgress('capturing', 'انتظار تحميل الموارد...', 3);
                 await iframeWin.__capturePrepare();
             }
 
             const effectiveDuration = Math.min(duration, maxDuration);
             const totalFrames = Math.floor(fps * effectiveDuration);
-
             const framesPerPart = Math.max(1, Math.floor(fps * secondsPerPart));
             const partCount = Math.ceil(totalFrames / framesPerPart);
             const partFiles = [];
@@ -311,34 +305,26 @@ class VideoGeneratorWASM {
                     const currentTime = i / fps;
 
                     if (iframeDoc) this.seekAnimationsToTime(iframeDoc, currentTime);
-
                     await this.settleAfterSeek();
 
-                    if (iframeWin && iframeWin.__capturePrepare) {
+                    if (iframeWin?.__capturePrepare) {
                         await iframeWin.__capturePrepare();
                     }
 
-                    try {
-                        const bytes = await this.captureFrameBytes(previewElement, canvas, ctx, width, height, i);
-                        const frameName = `frame_${this.pad5(local + 1)}.jpg`;
-                        await this.ffmpeg.writeFile(frameName, bytes);
-                    } catch (error) {
-                        console.error(`Frame ${i} capture error:`, error);
-                        ctx.fillStyle = '#1a1a2e';
-                        ctx.fillRect(0, 0, width, height);
-                        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
-                        const bytes = new Uint8Array(await blob.arrayBuffer());
-                        await this.ffmpeg.writeFile(`frame_${this.pad5(local + 1)}.jpg`, bytes);
-                    }
+                    const bytes = await this.captureFrameBytes(previewElement, canvas, ctx, width, height, i);
+                    await this.ffmpeg.writeFile(`frame_${this.pad5(local + 1)}.jpg`, bytes);
 
                     const captureRatio = (i + 1) / totalFrames;
-                    if (i % 3 === 0) {
-                        this.updateProgress('capturing', `التقاط الإطارات... ${Math.round(captureRatio * 100)}%`, 5 + captureRatio * 45);
+                    if (i % 2 === 0) {
+                        this.updateProgress('capturing', 
+                            `التقاط ${i + 1}/${totalFrames}`, 
+                            5 + captureRatio * 45
+                        );
                     }
                 }
 
                 const partName = `part_${this.pad5(part + 1)}.mp4`;
-                this.updateProgress('encoding', `تشفير الجزء ${part + 1}/${partCount}...`, 55);
+                this.updateProgress('encoding', `تشفير ${part + 1}/${partCount}...`, 55);
 
                 await this.ffmpeg.exec([
                     '-framerate', String(fps),
@@ -347,8 +333,9 @@ class VideoGeneratorWASM {
                     '-pix_fmt', 'yuv420p',
                     '-crf', String(crf),
                     '-preset', preset,
-                    '-tune', 'animation',
+                    '-tune', 'film',
                     '-movflags', '+faststart',
+                    '-y',
                     partName
                 ]);
 
@@ -357,13 +344,13 @@ class VideoGeneratorWASM {
                 await this.cleanupWasmTemp({
                     framesOnly: true,
                     framesInPart,
-                    cleanHtml2canvasCache: (part % 3 === 0)
+                    cleanHtml2canvasCache: (part % 2 === 0)
                 });
 
-                this.updateProgress('encoding', `تم تشفير الجزء ${part + 1}/${partCount}`, 55 + ((part + 1) / partCount) * 20);
+                this.updateProgress('encoding', `تم ${part + 1}/${partCount}`, 55 + ((part + 1) / partCount) * 20);
             }
 
-            if (iframeWin && iframeWin.setCaptureMode) {
+            if (iframeWin?.setCaptureMode) {
                 iframeWin.setCaptureMode(false);
             }
 
@@ -371,37 +358,38 @@ class VideoGeneratorWASM {
                 this.resumeAnimations(iframeDoc);
             }
 
-            const listTxt = partFiles.map(p => `file '${p}'`).join('\n');
-            await this.ffmpeg.writeFile('list.txt', new TextEncoder().encode(listTxt));
-
-            this.updateProgress('encoding', 'دمج الأجزاء...', 78);
-
             if (partFiles.length === 1) {
                 const singlePartData = await this.ffmpeg.readFile(partFiles[0]);
                 await this.ffmpeg.writeFile(outputFile, singlePartData);
-                await this.safeUnlink(partFiles[0]);
             } else {
+                const listTxt = partFiles.map(p => `file '${p}'`).join('\n');
+                await this.ffmpeg.writeFile('list.txt', new TextEncoder().encode(listTxt));
+
+                this.updateProgress('encoding', 'دمج الأجزاء...', 78);
+
                 await this.ffmpeg.exec([
                     '-f', 'concat',
                     '-safe', '0',
                     '-i', 'list.txt',
-                    '-fflags', '+genpts',
                     '-c', 'copy',
+                    '-y',
                     outputFile
                 ]);
             }
 
             const data = await this.ffmpeg.readFile(outputFile);
 
-            await this.safeUnlink(outputFile);
-            await this.safeUnlink('list.txt');
-            for (const p of partFiles) await this.safeUnlink(p);
-            await this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+            await this.cleanupWasmTemp({ 
+                framesOnly: false, 
+                cleanParts: true, 
+                cleanList: true, 
+                cleanHtml2canvasCache: true 
+            });
 
             const blob = new Blob([data.buffer], { type: 'video/mp4' });
             const url = URL.createObjectURL(blob);
 
-            this.updateProgress('done', 'تم إنشاء الفيديو بنجاح ✅', 100);
+            this.updateProgress('done', 'تم إنشاء الفيديو ✅', 100);
 
             return {
                 success: true,
@@ -412,8 +400,13 @@ class VideoGeneratorWASM {
                 size: (blob.size / (1024 * 1024)).toFixed(2) + ' MB'
             };
         } catch (err) {
-            await this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
-            console.error('renderMP4Deterministic error:', err);
+            await this.cleanupWasmTemp({ 
+                framesOnly: false, 
+                cleanParts: true, 
+                cleanList: true, 
+                cleanHtml2canvasCache: true 
+            });
+            console.error('❌ renderMP4 error:', err);
             return { success: false, error: String(err?.message || err) };
         }
     }
@@ -424,6 +417,7 @@ class VideoGeneratorWASM {
         await this.ffmpeg.exec([
             '-i', inputMp4,
             '-vf', `fps=${fps},scale=${scaleWidth}:-1:flags=lanczos,palettegen`,
+            '-y',
             'palette.png'
         ]);
 
@@ -431,11 +425,11 @@ class VideoGeneratorWASM {
             '-i', inputMp4,
             '-i', 'palette.png',
             '-lavfi', `fps=${fps},scale=${scaleWidth}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=sierra2_4a`,
+            '-y',
             outputGif
         ]);
 
         await this.safeUnlink('palette.png');
-
         return outputGif;
     }
 
@@ -448,19 +442,14 @@ class VideoGeneratorWASM {
         }
 
         const previewElement = document.getElementById('preview-frame');
-        if (!previewElement) {
-            throw new Error('عنصر المعاينة غير موجود');
-        }
+        if (!previewElement) throw new Error('عنصر المعاينة غير موجود');
 
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
 
-        let crf = 18;
-        if (quality === 'high') crf = 18;
-        else if (quality === 'low') crf = 28;
-        else crf = 23;
+        let crf = quality === 'high' ? 18 : quality === 'low' ? 28 : 23;
 
         try {
             const mp4Result = await this.renderMP4Deterministic({
@@ -478,9 +467,7 @@ class VideoGeneratorWASM {
                 outputFile: 'output.mp4'
             });
 
-            if (!mp4Result.success) {
-                throw new Error(mp4Result.error || 'فشل إنشاء الفيديو');
-            }
+            if (!mp4Result.success) throw new Error(mp4Result.error || 'فشل إنشاء الفيديو');
 
             if (format === 'GIF') {
                 await this.ffmpeg.writeFile('output.mp4', new Uint8Array(await mp4Result.blob.arrayBuffer()));
@@ -498,7 +485,7 @@ class VideoGeneratorWASM {
 
                 URL.revokeObjectURL(mp4Result.url);
 
-                this.updateProgress('done', 'تم إنشاء GIF بنجاح ✅', 100);
+                this.updateProgress('done', 'تم إنشاء GIF ✅', 100);
 
                 return {
                     success: true,
@@ -513,28 +500,32 @@ class VideoGeneratorWASM {
             return mp4Result;
 
         } catch (error) {
-            console.error('Video generation error:', error);
-            await this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+            console.error('❌ Video generation error:', error);
+            await this.cleanupWasmTemp({ 
+                framesOnly: false, 
+                cleanParts: true, 
+                cleanList: true, 
+                cleanHtml2canvasCache: true 
+            });
 
-            if (error.message && (error.message.includes('OOM') || error.message.includes('memory'))) {
-                throw new Error('نفدت الذاكرة - جرب مدة أقصر أو دقة أقل');
+            if (error.message?.includes('OOM') || error.message?.includes('memory')) {
+                throw new Error('نفدت الذاكرة - جرب مدة أقصر');
             }
-            throw new Error(`فشل إنشاء الفيديو: ${error.message}`);
+            throw new Error(`فشل: ${error.message}`);
         }
     }
 
     abort() {
-        if (this.abortController) {
-            this.abortController.abort();
-        }
-    }
-
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        if (this.abortController) this.abortController.abort();
     }
 
     async clearFrames() {
-        await this.cleanupWasmTemp({ framesOnly: false, cleanParts: true, cleanList: true, cleanHtml2canvasCache: true });
+        await this.cleanupWasmTemp({ 
+            framesOnly: false, 
+            cleanParts: true, 
+            cleanList: true, 
+            cleanHtml2canvasCache: true 
+        });
     }
 }
 
